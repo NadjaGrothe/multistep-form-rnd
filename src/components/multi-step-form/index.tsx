@@ -1,206 +1,103 @@
-import { Button } from '@/components/ui/button';
-import { useAppForm, withForm } from '@/components/ui/form';
-import { Progress } from '@/components/ui/progress';
-import { useCallback, type JSX } from 'react';
-import * as z from 'zod';
-import { formSchema } from './schema';
-import { useMultiStepForm } from './use-multi-step-form';
+import { useState } from 'react';
+import { MultiStepContainer } from './MultiStepContainer';
+import {
+  type MultiStepFormData,
+  type Step1Data,
+  type Step2Data,
+  type Step3Data,
+} from './schema';
+import { Step1Form } from './Step1Form';
+import { Step2Form } from './Step2Form';
+import { Step3Form } from './Step3Form';
+import { useGenericMultiStepForm } from './useGenericMultiStepForm';
 
 export function DraftForm() {
-  const form = useAppForm({
-    defaultValues: {
-      nameFirst: '',
-      nameLast: '',
-      email: '',
-      address1: '',
-      postcode: '',
-      townCity: '',
-    } satisfies z.infer<typeof formSchema>,
-    validators: {
-      onChange: formSchema,
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const multiStepForm = useGenericMultiStepForm<
+    MultiStepFormData,
+    Step1Data | Step2Data | Step3Data
+  >({
+    totalSteps: 3,
+    onComplete: async (data: MultiStepFormData) => {
+      setIsSubmitting(true);
+      try {
+        console.log('Complete form data:', data);
+        // Here you would typically send the data to your API
+        await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulate API call
+        alert('Form submitted successfully!');
+      } catch (error) {
+        console.error('Error submitting form:', error);
+        alert('Error submitting form. Please try again.');
+      } finally {
+        setIsSubmitting(false);
+      }
     },
-    onSubmit: ({ value }) => {
-      console.log(value);
+    onStepValidation: async (step, data) => {
+      console.log(`Validating step ${step}:`, data);
+      // Here you could add custom validation logic
+      // For example, check if email is unique on step 1
+      return true;
     },
   });
-  const handleSubmit = useCallback(
-    (e: React.FormEvent) => {
-      console.log('handle submit');
-      e.preventDefault();
-      e.stopPropagation();
-      form.handleSubmit();
-    },
-    [form]
-  );
-  // const isSubmitting = useStore(form.store, (state) => state.isSubmitting);
+
+  const {
+    currentStep,
+    totalSteps,
+    progress,
+    isFirstStep,
+    isLastStep,
+    formData,
+    goToNext,
+    goToPrevious,
+    completeForm,
+  } = multiStepForm;
+
+  const handleStep1Next = async (data: Step1Data) => {
+    return await goToNext(data);
+  };
+
+  const handleStep2Next = async (data: Step2Data) => {
+    return await goToNext(data);
+  };
+
+  const handleStep3Submit = async (data: Step3Data) => {
+    await completeForm(data);
+  };
+
   return (
-    <div>
-      <form.AppForm>
-        <form
-          onSubmit={handleSubmit}
-          className="flex flex-col p-2 md:p-5 w-full mx-auto rounded-md max-w-3xl gap-2 border"
-        >
-          <MultiStepViewer form={form} />
-        </form>
-      </form.AppForm>
-    </div>
+    <MultiStepContainer
+      currentStep={currentStep}
+      totalSteps={totalSteps}
+      progress={progress}
+    >
+      {currentStep === 1 && (
+        <Step1Form
+          initialData={formData}
+          onNext={handleStep1Next}
+          onPrevious={goToPrevious}
+          isFirstStep={isFirstStep}
+        />
+      )}
+
+      {currentStep === 2 && (
+        <Step2Form
+          initialData={formData}
+          onNext={handleStep2Next}
+          onPrevious={goToPrevious}
+          isLastStep={false}
+        />
+      )}
+
+      {currentStep === 3 && (
+        <Step3Form
+          initialData={formData}
+          onPrevious={goToPrevious}
+          onSubmit={handleStep3Submit}
+          isLastStep={isLastStep}
+          isSubmitting={isSubmitting}
+        />
+      )}
+    </MultiStepContainer>
   );
 }
-
-//------------------------------
-// Define the form structure for type inference
-const multiStepFormOptions = {
-  defaultValues: {
-    nameFirst: '',
-    nameLast: '',
-    email: '',
-    address1: '',
-    postcode: '',
-    townCity: '',
-  } satisfies z.infer<typeof formSchema>,
-};
-//------------------------------
-
-const MultiStepViewer = withForm({
-  ...multiStepFormOptions,
-  render: function MultiStepFormRender({ form }) {
-    const stepFormElements: {
-      [key: number]: JSX.Element;
-    } = {
-      1: (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between flex-wrap sm:flex-nowrap w-full gap-2">
-            <form.AppField
-              name="nameFirst"
-              children={(field) => (
-                <field.FormInput
-                  label="First name"
-                  placeholder="John"
-                  type="text"
-                />
-              )}
-            />
-            <form.AppField
-              name="nameLast"
-              children={(field) => (
-                <field.FormInput
-                  label="Last name"
-                  placeholder="Doe"
-                  type="text"
-                />
-              )}
-            />
-          </div>
-          <form.AppField
-            name="email"
-            children={(field) => (
-              <field.FormInput
-                label="Email"
-                placeholder="john@mailprovider.co.uk"
-                type="email"
-              />
-            )}
-          />
-        </div>
-      ),
-      2: (
-        <div>
-          <form.AppField
-            name="address1"
-            children={(field) => (
-              <field.FormInput
-                label="Address Line 1"
-                placeholder="Marketplace 1"
-                type="text"
-              />
-            )}
-          />
-
-          <div className="flex items-center justify-between flex-wrap sm:flex-nowrap w-full gap-2">
-            <form.AppField
-              name="postcode"
-              children={(field) => (
-                <field.FormInput
-                  label="Postcode *"
-                  placeholder="TR1 2RT"
-                  type="text"
-                />
-              )}
-            />
-            <form.AppField
-              name="townCity"
-              children={(field) => (
-                <field.FormInput
-                  label="Town/City *"
-                  placeholder="Nottingham"
-                  type="text"
-                />
-              )}
-            />
-          </div>
-        </div>
-      ),
-    };
-
-    const steps = Object.keys(stepFormElements).map(Number);
-
-    const { currentStep, isLastStep, goToNext, goToPrevious } =
-      useMultiStepForm({
-        initialSteps: steps,
-        onStepValidation: () => {
-          /**
-           * TODO: handle step validation
-           */
-          return true;
-        },
-      });
-    const current = stepFormElements[currentStep];
-
-    const {
-      baseStore: {
-        state: { isSubmitting },
-      },
-    } = form;
-
-    return (
-      <div className="flex flex-col gap-2 pt-3">
-        <div className="flex flex-col items-center justify-start gap-1">
-          <span>
-            Step {currentStep} of {steps.length}
-          </span>
-          <Progress value={(currentStep / steps.length) * 100} />
-        </div>
-        <div key={currentStep} className="flex flex-col gap-2">
-          {current}
-        </div>
-        <div className="flex items-center justify-between gap-3 w-full pt-3">
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={goToPrevious}
-            type="button"
-          >
-            Previous
-          </Button>
-          {isLastStep ? (
-            <Button size="sm" type="submit">
-              {isSubmitting ? 'Submitting...' : 'Submit'}
-            </Button>
-          ) : (
-            <Button
-              size="sm"
-              type="button"
-              variant={'secondary'}
-              onClick={(e) => {
-                e.preventDefault();
-                goToNext();
-              }}
-            >
-              Next
-            </Button>
-          )}
-        </div>
-      </div>
-    );
-  },
-});
