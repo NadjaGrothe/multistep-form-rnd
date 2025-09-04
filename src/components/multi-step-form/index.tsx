@@ -1,5 +1,7 @@
+import { Accordion } from '@/components/ui/accordion';
+import { Progress } from '@/components/ui/progress';
 import { useState } from 'react';
-import { MultiStepContainer } from './MultiStepContainer';
+import { AccordionItemWrapper } from './AccordionItemWrapper';
 import {
   type MultiStepFormData,
   type Step1Data,
@@ -51,6 +53,10 @@ export function DraftForm() {
     goToNext,
     goToPrevious,
     completeForm,
+    activeAccordionValue,
+    handleAccordionValueChange,
+    canAccessStep,
+    getStepTitle,
   } = multiStepForm;
 
   const handleStep1Next = async (data: Step1Data) => {
@@ -65,39 +71,67 @@ export function DraftForm() {
     await completeForm(data);
   };
 
+  const stepTitles = [
+    'Personal Information',
+    'Address Information',
+    'Accounting Information',
+  ];
+
   return (
-    <MultiStepContainer
-      currentStep={currentStep}
-      totalSteps={totalSteps}
-      progress={progress}
-    >
-      {currentStep === 1 && (
-        <Step1Form
-          initialData={formData}
-          onNext={handleStep1Next}
-          onPrevious={goToPrevious}
-          isFirstStep={isFirstStep}
-        />
-      )}
+    <div className="flex flex-col p-2 md:p-5 w-full mx-auto rounded-md max-w-3xl gap-4 border">
+      <div className="flex flex-col items-center justify-start gap-2">
+        <span className="text-sm text-muted-foreground">
+          Step {currentStep} of {totalSteps}
+        </span>
+        <Progress value={progress} className="w-full" />
+      </div>
 
-      {currentStep === 2 && (
-        <Step2Form
-          initialData={formData}
-          onNext={handleStep2Next}
-          onPrevious={goToPrevious}
-          isLastStep={false}
-        />
-      )}
+      <Accordion
+        type="single"
+        value={activeAccordionValue}
+        onValueChange={handleAccordionValueChange}
+        className="w-full"
+      >
+        <AccordionItemWrapper
+          value="step-1"
+          title={getStepTitle(1, stepTitles)}
+          canAccess={canAccessStep(1)}
+        >
+          <Step1Form
+            initialData={formData}
+            onNext={handleStep1Next}
+            onPrevious={goToPrevious}
+            isFirstStep={isFirstStep}
+          />
+        </AccordionItemWrapper>
 
-      {currentStep === 3 && (
-        <Step3Form
-          initialData={formData}
-          onPrevious={goToPrevious}
-          onSubmit={handleStep3Submit}
-          isLastStep={isLastStep}
-          isSubmitting={isSubmitting}
-        />
-      )}
-    </MultiStepContainer>
+        <AccordionItemWrapper
+          value="step-2"
+          title={getStepTitle(2, stepTitles)}
+          canAccess={canAccessStep(2)}
+        >
+          <Step2Form
+            initialData={formData}
+            onNext={handleStep2Next}
+            onPrevious={goToPrevious}
+            isLastStep={false}
+          />
+        </AccordionItemWrapper>
+
+        <AccordionItemWrapper
+          value="step-3"
+          title={getStepTitle(3, stepTitles)}
+          canAccess={canAccessStep(3)}
+        >
+          <Step3Form
+            initialData={formData}
+            onPrevious={goToPrevious}
+            onSubmit={handleStep3Submit}
+            isLastStep={isLastStep}
+            isSubmitting={isSubmitting}
+          />
+        </AccordionItemWrapper>
+      </Accordion>
+    </div>
   );
 }

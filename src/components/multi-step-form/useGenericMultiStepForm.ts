@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 
-// Generic multi-step form hook that can work with any form data structure
+// Generic multi-step form hook with built-in accordion functionality
 export function useGenericMultiStepForm<TCompleteData, TStepData = unknown>({
   totalSteps,
   onComplete,
@@ -15,6 +15,9 @@ export function useGenericMultiStepForm<TCompleteData, TStepData = unknown>({
 }) {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<Partial<TCompleteData>>({});
+  const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
+  const [activeAccordionValue, setActiveAccordionValue] =
+    useState<string>('step-1');
 
   const updateStepData = useCallback((stepData: Partial<TCompleteData>) => {
     setFormData((prev) => ({ ...prev, ...stepData }));
@@ -33,6 +36,11 @@ export function useGenericMultiStepForm<TCompleteData, TStepData = unknown>({
 
       if (currentStep < totalSteps) {
         setCurrentStep((prev) => prev + 1);
+
+        // Update completed steps and accordion value
+        setCompletedSteps((prev) => new Set(prev).add(currentStep));
+        setActiveAccordionValue(`step-${currentStep + 1}`);
+
         return true;
       }
       return false;
@@ -63,16 +71,50 @@ export function useGenericMultiStepForm<TCompleteData, TStepData = unknown>({
       } as TCompleteData;
       setFormData(completeData);
 
+      // Mark final step as completed
+      setCompletedSteps((prev) => new Set(prev).add(currentStep));
+
       if (onComplete) {
         await onComplete(completeData);
       }
     },
-    [formData, onComplete]
+    [formData, onComplete, currentStep]
+  );
+
+  const handleAccordionValueChange = useCallback(
+    (value: string) => {
+      const stepNumber = parseInt(value.split('-')[1]);
+
+      // Only allow opening if it's step 1, or if previous steps are completed
+      if (stepNumber === 1 || completedSteps.has(stepNumber - 1)) {
+        setActiveAccordionValue(value);
+        setCurrentStep(stepNumber);
+      }
+    },
+    [completedSteps]
+  );
+
+  const canAccessStep = useCallback(
+    (step: number) => {
+      return step === 1 || completedSteps.has(step - 1);
+    },
+    [completedSteps]
+  );
+
+  const getStepTitle = useCallback(
+    (step: number, titles: string[]) => {
+      const isCompleted = completedSteps.has(step);
+      const title = titles[step - 1];
+      return isCompleted ? `✓ ${title}` : title;
+    },
+    [completedSteps]
   );
 
   const reset = useCallback(() => {
     setCurrentStep(1);
     setFormData({});
+    setCompletedSteps(new Set());
+    setActiveAccordionValue('step-1');
   }, []);
 
   return {
@@ -88,5 +130,11 @@ export function useGenericMultiStepForm<TCompleteData, TStepData = unknown>({
     updateStepData,
     completeForm,
     reset,
+    // Accordion functionality (always available)
+    completedSteps,
+    activeAccordionValue,
+    handleAccordionValueChange,
+    canAccessStep,
+    getStepTitle,
   };
 }
