@@ -1,17 +1,12 @@
 import { useCallback, useState } from 'react';
 
-// Generic multi-step form hook with built-in accordion functionality
 export function useGenericMultiStepForm<TCompleteData, TStepData = unknown>({
   totalSteps,
   onComplete,
-  onStepValidation,
-}: {
+}: 
+{
   totalSteps: number;
-  onComplete?: (data: TCompleteData) => void | Promise<void>;
-  onStepValidation?: (
-    step: number,
-    data: TStepData
-  ) => Promise<boolean> | boolean;
+  onComplete: (data: TCompleteData) => void | Promise<void>;
 }) {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<Partial<TCompleteData>>({});
@@ -28,12 +23,6 @@ export function useGenericMultiStepForm<TCompleteData, TStepData = unknown>({
       // Update form data with current step data
       updateStepData(stepData as Partial<TCompleteData>);
 
-      // Validate step if validation function provided
-      if (onStepValidation) {
-        const isValid = await onStepValidation(currentStep, stepData);
-        if (!isValid) return false;
-      }
-
       if (currentStep < totalSteps) {
         setCurrentStep((prev) => prev + 1);
 
@@ -45,7 +34,7 @@ export function useGenericMultiStepForm<TCompleteData, TStepData = unknown>({
       }
       return false;
     },
-    [currentStep, totalSteps, onStepValidation, updateStepData]
+    [currentStep, totalSteps, updateStepData]
   );
 
   const goToPrevious = useCallback(() => {
@@ -130,7 +119,6 @@ export function useGenericMultiStepForm<TCompleteData, TStepData = unknown>({
     updateStepData,
     completeForm,
     reset,
-    // Accordion functionality (always available)
     completedSteps,
     activeAccordionValue,
     handleAccordionValueChange,

@@ -26,7 +26,7 @@ export function DraftForm() {
       try {
         console.log('Complete form data:', data);
         // Here you would typically send the data to your API
-        await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulate API call
+        await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
         alert('Form submitted successfully!');
       } catch (error) {
         console.error('Error submitting form:', error);
@@ -34,12 +34,6 @@ export function DraftForm() {
       } finally {
         setIsSubmitting(false);
       }
-    },
-    onStepValidation: async (step, data) => {
-      console.log(`Validating step ${step}:`, data);
-      // Here you could add custom validation logic
-      // For example, check if email is unique on step 1
-      return true;
     },
   });
 
