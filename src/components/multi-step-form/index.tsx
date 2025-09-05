@@ -33,13 +33,6 @@ export function DraftForm() {
 
   return (
     <div className="p-8 w-full rounded-md max-w-4xl border">
-      <div className="flex flex-col items-center justify-start gap-2">
-        {/* <span className="text-sm text-muted-foreground">
-          Step {currentStep} of {totalSteps}
-        </span>
-        <Progress value={progress} className="w-full" /> */}
-      </div>
-
       <Accordion
         type="single"
         className="w-full"
