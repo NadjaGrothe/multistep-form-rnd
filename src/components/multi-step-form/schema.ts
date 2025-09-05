@@ -32,6 +32,14 @@ export const formStepEnum = {
 
 export type FormStepEnum = (typeof formStepEnum)[keyof typeof formStepEnum];
 
+// Step order configuration for multi-step form
+export const stepOrder = [
+  formStepEnum.PERSONAL, // index 0
+  formStepEnum.ADDRESS, // index 1
+  formStepEnum.ACCOUNTING, // index 2
+  formStepEnum.CONFIRMATION, // index 3
+] as const;
+
 export const multiStepFormSchema = z.object({
   step: z.enum(Object.values(formStepEnum)),
   ...personalDetailsSchema.shape,

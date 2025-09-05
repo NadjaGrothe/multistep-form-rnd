@@ -1,27 +1,35 @@
 import { Accordion } from '@/components/ui/accordion';
 import { useAppForm } from '@/components/ui/form';
-import { useStore } from '@tanstack/react-form';
 import { Button } from '../ui/button';
 import { AccordionItemWrapper } from './AccordionItemWrapper';
 import { AccountingDetailsStep } from './AccountingDetailsStep';
 import { AddressDetailsStep } from './AddressDetailsStep';
 import { PersonalDetailsStep } from './PersonalDetailsStep';
-import { formStepEnum } from './schema';
+import { formStepEnum, stepOrder } from './schema';
 import { multiStepFormOptions } from './shared-form';
+import { useMultiStepForm } from './useMultiStepForm';
 
 export function DraftForm() {
   const form = useAppForm({
     ...multiStepFormOptions,
-    onSubmit: ({ value, formApi }) => {
+    onSubmit: ({ value }) => {
       if (value.step !== 'confirmation') return;
       if (value.step === 'confirmation') {
         alert(JSON.stringify(value, null, 2));
-        formApi.reset();
       }
     },
   });
 
-  const currentStepWatcher = useStore(form.store, (state) => state.values.step);
+  const {
+    activeAccordionValue,
+    canAccessStep,
+    handleAccordionValueChange,
+    resetForm,
+  } = useMultiStepForm({
+    form,
+    stepOrder,
+    stepFieldName: 'step',
+  });
 
   return (
     <div className="p-8 w-full rounded-md max-w-4xl border">
@@ -32,7 +40,12 @@ export function DraftForm() {
         <Progress value={progress} className="w-full" /> */}
       </div>
 
-      <Accordion type="single" className="w-full" value={currentStepWatcher}>
+      <Accordion
+        type="single"
+        className="w-full"
+        value={activeAccordionValue}
+        onValueChange={handleAccordionValueChange}
+      >
         <form.AppForm>
           <form
             onSubmit={(e) => {
@@ -44,7 +57,7 @@ export function DraftForm() {
             <AccordionItemWrapper
               value={formStepEnum.PERSONAL}
               title="Personal Information"
-              canAccess={true}
+              canAccess={canAccessStep(formStepEnum.PERSONAL)}
             >
               <PersonalDetailsStep form={form} />
             </AccordionItemWrapper>
@@ -52,7 +65,7 @@ export function DraftForm() {
             <AccordionItemWrapper
               value={formStepEnum.ADDRESS}
               title="Address Information"
-              canAccess={true}
+              canAccess={canAccessStep(formStepEnum.ADDRESS)}
             >
               <AddressDetailsStep form={form} />
             </AccordionItemWrapper>
@@ -60,7 +73,7 @@ export function DraftForm() {
             <AccordionItemWrapper
               value={formStepEnum.ACCOUNTING}
               title="Accounting Information"
-              canAccess={true}
+              canAccess={canAccessStep(formStepEnum.ACCOUNTING)}
             >
               <AccountingDetailsStep form={form} />
             </AccordionItemWrapper>
@@ -68,13 +81,21 @@ export function DraftForm() {
             <AccordionItemWrapper
               value={formStepEnum.CONFIRMATION}
               title="Confirmation"
-              canAccess={true}
+              canAccess={canAccessStep(formStepEnum.CONFIRMATION)}
             >
               <div className="space-y-4">
                 <h2 className="text-xl font-semibold">Confirmation</h2>
                 <pre>{JSON.stringify(form.store.state.values, null, 2)}</pre>
                 <Button type="submit" size="sm" variant="secondary">
                   Submit
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="secondary"
+                  onClick={resetForm}
+                >
+                  Reset
                 </Button>
               </div>
             </AccordionItemWrapper>
