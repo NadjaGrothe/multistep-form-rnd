@@ -7,6 +7,8 @@ interface UseMultiStepFormProps<TStepValue = string> {
   stepFieldName?: string; // Field name in form state, defaults to 'step'
 }
 
+//TODO: consider changing this to reducer/external state management like xstate
+
 export function useMultiStepForm<TStepValue extends string = string>({
   form,
   stepOrder,

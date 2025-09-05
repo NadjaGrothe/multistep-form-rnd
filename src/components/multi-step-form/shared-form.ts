@@ -1,4 +1,4 @@
-import { formOptions } from '@tanstack/react-form';
+import { formOptions, revalidateLogic } from '@tanstack/react-form';
 import {
   accountingDetailsSchema,
   addressDetailsSchema,
@@ -28,6 +28,10 @@ const defaultValues: MultiStepFormSchema = {
 
 export const multiStepFormOptions = formOptions({
   defaultValues,
+  validationLogic: revalidateLogic({
+    mode: 'submit',
+    modeAfterSubmission: 'change',
+  }),
   validators: {
     onSubmit: ({ value, formApi }) => {
       if (value.step === formStepEnum.PERSONAL) {
@@ -54,6 +58,31 @@ export const multiStepFormOptions = formOptions({
             () => formApi.setFieldValue('step', formStepEnum.CONFIRMATION),
             100
           );
+        return parsed;
+      }
+      if (value.step === formStepEnum.CONFIRMATION) {
+        const parsed = formApi.parseValuesWithSchema(multiStepFormSchema);
+        return parsed;
+      }
+    },
+    //Changes validation mode to 'change' once a form step has been 'submitted' (meaning, if the user goes back and i.e. removes a required field, the validation will trigger immediately)
+    onDynamic: ({ value, formApi }) => {
+      if (value.step === formStepEnum.PERSONAL) {
+        const parsed = formApi.parseValuesWithSchema(
+          personalDetailsSchema as typeof multiStepFormSchema
+        );
+        return parsed;
+      }
+      if (value.step === formStepEnum.ADDRESS) {
+        const parsed = formApi.parseValuesWithSchema(
+          addressDetailsSchema as typeof multiStepFormSchema
+        );
+        return parsed;
+      }
+      if (value.step === formStepEnum.ACCOUNTING) {
+        const parsed = formApi.parseValuesWithSchema(
+          accountingDetailsSchema as typeof multiStepFormSchema
+        );
         return parsed;
       }
     },
