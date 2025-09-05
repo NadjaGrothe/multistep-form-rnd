@@ -7,8 +7,6 @@ interface UseMultiStepFormProps<TStepValue = string> {
   stepFieldName?: string; // Field name in form state, defaults to 'step'
 }
 
-//TODO: consider changing this to reducer/external state management like xstate
-
 export function useMultiStepForm<TStepValue extends string = string>({
   form,
   stepOrder,
@@ -18,6 +16,8 @@ export function useMultiStepForm<TStepValue extends string = string>({
     form.store,
     (state) => state.values[stepFieldName]
   );
+
+  const isFormValid = useStore(form.store, (state) => state.isValid);
 
   const [activeAccordionValue, setActiveAccordionValue] =
     useState<string>(currentStep);
@@ -37,10 +37,12 @@ export function useMultiStepForm<TStepValue extends string = string>({
 
   const canAccessStep = useCallback(
     (step: TStepValue) => {
+      if (!isFormValid) return false;
+
       const stepIndex = getCurrentStepIndex(step);
       return accessibleStepIndexes.includes(stepIndex);
     },
-    [accessibleStepIndexes, getCurrentStepIndex]
+    [accessibleStepIndexes, getCurrentStepIndex, isFormValid]
   );
 
   useEffect(() => {
