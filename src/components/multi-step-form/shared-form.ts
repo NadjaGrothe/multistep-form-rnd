@@ -33,7 +33,7 @@ export const multiStepFormOptions = formOptions({
     modeAfterSubmission: 'change',
   }),
   validators: {
-    onSubmit: ({ value, formApi }) => {
+    onDynamic: ({ value, formApi }) => {
       if (value.step === formStepEnum.PERSONAL) {
         return formApi.parseValuesWithSchema(
           personalDetailsSchema as typeof multiStepFormSchema
@@ -51,25 +51,6 @@ export const multiStepFormOptions = formOptions({
       }
       if (value.step === formStepEnum.CONFIRMATION) {
         return formApi.parseValuesWithSchema(multiStepFormSchema);
-      }
-    },
-    
-    //Changes validation mode to 'change' once a form step has been 'submitted' (meaning, if the user goes back and i.e. removes a required field, the validation will trigger immediately)
-    onDynamic: ({ value, formApi }) => {
-      if (value.step === formStepEnum.PERSONAL) {
-        return formApi.parseValuesWithSchema(
-          personalDetailsSchema as typeof multiStepFormSchema
-        );
-      }
-      if (value.step === formStepEnum.ADDRESS) {
-        return formApi.parseValuesWithSchema(
-          addressDetailsSchema as typeof multiStepFormSchema
-        );
-      }
-      if (value.step === formStepEnum.ACCOUNTING) {
-        return formApi.parseValuesWithSchema(
-          accountingDetailsSchema as typeof multiStepFormSchema
-        );
       }
     },
   },
