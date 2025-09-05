@@ -1,5 +1,4 @@
 import { Accordion } from '@/components/ui/accordion';
-import { Progress } from '@/components/ui/progress';
 import { useState } from 'react';
 import { AccordionItemWrapper } from './AccordionItemWrapper';
 import {
@@ -38,9 +37,6 @@ export function DraftForm() {
   });
 
   const {
-    currentStep,
-    totalSteps,
-    progress,
     isFirstStep,
     isLastStep,
     formData,
@@ -73,13 +69,6 @@ export function DraftForm() {
 
   return (
     <div className="flex flex-col p-2 md:p-5 w-full mx-auto rounded-md max-w-3xl gap-4 border">
-      <div className="flex flex-col items-center justify-start gap-2">
-        <span className="text-sm text-muted-foreground">
-          Step {currentStep} of {totalSteps}
-        </span>
-        <Progress value={progress} className="w-full" />
-      </div>
-
       <Accordion
         type="single"
         value={activeAccordionValue}

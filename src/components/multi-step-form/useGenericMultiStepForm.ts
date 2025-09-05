@@ -3,8 +3,7 @@ import { useCallback, useState } from 'react';
 export function useGenericMultiStepForm<TCompleteData, TStepData = unknown>({
   totalSteps,
   onComplete,
-}: 
-{
+}: {
   totalSteps: number;
   onComplete: (data: TCompleteData) => void | Promise<void>;
 }) {
@@ -107,9 +106,6 @@ export function useGenericMultiStepForm<TCompleteData, TStepData = unknown>({
   }, []);
 
   return {
-    currentStep,
-    totalSteps,
-    progress: (currentStep / totalSteps) * 100,
     isFirstStep: currentStep === 1,
     isLastStep: currentStep === totalSteps,
     formData,
