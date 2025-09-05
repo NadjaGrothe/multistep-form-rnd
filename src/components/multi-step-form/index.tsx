@@ -12,9 +12,23 @@ import { useMultiStepForm } from './useMultiStepForm';
 export function DraftForm() {
   const form = useAppForm({
     ...multiStepFormOptions,
-    onSubmit: ({ value }) => {
-      if (value.step !== 'confirmation') return;
-      if (value.step === 'confirmation') {
+    onSubmit: ({ value, formApi }) => {
+      if (value.step === formStepEnum.PERSONAL) {
+        formApi.setFieldValue('step', formStepEnum.ADDRESS);
+        console.log('Personal Details Submitted', value);
+      }
+
+      if (value.step === formStepEnum.ADDRESS) {
+        formApi.setFieldValue('step', formStepEnum.ACCOUNTING);
+        console.log('Address Details Submitted', value);
+      }
+
+      if (value.step === formStepEnum.ACCOUNTING) {
+        formApi.setFieldValue('step', formStepEnum.CONFIRMATION);
+        console.log('Accounting Details Submitted', value);
+      }
+
+      if (value.step === formStepEnum.CONFIRMATION) {
         alert(JSON.stringify(value, null, 2));
       }
     },

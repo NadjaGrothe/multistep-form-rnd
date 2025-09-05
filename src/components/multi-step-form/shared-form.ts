@@ -35,55 +35,41 @@ export const multiStepFormOptions = formOptions({
   validators: {
     onSubmit: ({ value, formApi }) => {
       if (value.step === formStepEnum.PERSONAL) {
-        const parsed = formApi.parseValuesWithSchema(
+        return formApi.parseValuesWithSchema(
           personalDetailsSchema as typeof multiStepFormSchema
         );
-        if (!parsed) formApi.setFieldValue('step', formStepEnum.ADDRESS);
-        return parsed;
       }
       if (value.step === formStepEnum.ADDRESS) {
-        const parsed = formApi.parseValuesWithSchema(
+        return formApi.parseValuesWithSchema(
           addressDetailsSchema as typeof multiStepFormSchema
         );
-        if (!parsed) formApi.setFieldValue('step', formStepEnum.ACCOUNTING);
-        return parsed;
       }
       if (value.step === formStepEnum.ACCOUNTING) {
-        const parsed = formApi.parseValuesWithSchema(
+        return formApi.parseValuesWithSchema(
           accountingDetailsSchema as typeof multiStepFormSchema
         );
-        if (!parsed)
-          //Need timeout to prevent the onSubmit in the confirmation step to trigger immediately - not very elegant but works for now
-          setTimeout(
-            () => formApi.setFieldValue('step', formStepEnum.CONFIRMATION),
-            100
-          );
-        return parsed;
       }
       if (value.step === formStepEnum.CONFIRMATION) {
-        const parsed = formApi.parseValuesWithSchema(multiStepFormSchema);
-        return parsed;
+        return formApi.parseValuesWithSchema(multiStepFormSchema);
       }
     },
+    
     //Changes validation mode to 'change' once a form step has been 'submitted' (meaning, if the user goes back and i.e. removes a required field, the validation will trigger immediately)
     onDynamic: ({ value, formApi }) => {
       if (value.step === formStepEnum.PERSONAL) {
-        const parsed = formApi.parseValuesWithSchema(
+        return formApi.parseValuesWithSchema(
           personalDetailsSchema as typeof multiStepFormSchema
         );
-        return parsed;
       }
       if (value.step === formStepEnum.ADDRESS) {
-        const parsed = formApi.parseValuesWithSchema(
+        return formApi.parseValuesWithSchema(
           addressDetailsSchema as typeof multiStepFormSchema
         );
-        return parsed;
       }
       if (value.step === formStepEnum.ACCOUNTING) {
-        const parsed = formApi.parseValuesWithSchema(
+        return formApi.parseValuesWithSchema(
           accountingDetailsSchema as typeof multiStepFormSchema
         );
-        return parsed;
       }
     },
   },
