@@ -1,28 +1,28 @@
 import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/components/ui/form';
-import { step1Schema, type Step1FormData } from './schema';
+import { personalDetailsSchema, type PersonalDetailsFormData } from './schema';
 
-type Step1FormProps = {
-  initialData?: Partial<Step1FormData>;
-  onNext: (data: Step1FormData) => Promise<boolean>;
+type PersonalDetailsStepProps = {
+  initialData?: Partial<PersonalDetailsFormData>;
+  onNext: (data: PersonalDetailsFormData) => Promise<boolean>;
   onPrevious: () => void;
   isFirstStep: boolean;
 };
 
-export function Step1Form({
+export function PersonalDetailsStep({
   initialData,
   onNext,
   onPrevious,
   isFirstStep,
-}: Step1FormProps) {
+}: PersonalDetailsStepProps) {
   const form = useAppForm({
     defaultValues: {
       nameFirst: initialData?.nameFirst || '',
       nameLast: initialData?.nameLast || '',
       email: initialData?.email || '',
-    } satisfies Step1FormData,
+    } satisfies PersonalDetailsFormData,
     validators: {
-      onChange: step1Schema,
+      onChange: personalDetailsSchema,
     },
     onSubmit: async ({ value }) => {
       await onNext(value);

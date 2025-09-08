@@ -1,29 +1,32 @@
 import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/components/ui/form';
-import { step3Schema, type Step3FormData } from './schema';
+import {
+  accountingDetailsSchema,
+  type AccountingDetailsFormData,
+} from './schema';
 
-type Step3FormProps = {
-  initialData?: Partial<Step3FormData>;
+type AccountingDetailsStepProps = {
+  initialData?: Partial<AccountingDetailsFormData>;
   onPrevious: () => void;
-  onSubmit: (data: Step3FormData) => Promise<void>;
+  onSubmit: (data: AccountingDetailsFormData) => Promise<void>;
   isLastStep: boolean;
   isSubmitting?: boolean;
 };
 
-export function Step3Form({
+export function AccountingDetailsStep({
   initialData,
   onPrevious,
   onSubmit,
   isLastStep,
   isSubmitting: externalSubmitting,
-}: Step3FormProps) {
+}: AccountingDetailsStepProps) {
   const form = useAppForm({
     defaultValues: {
       taxNumber: initialData?.taxNumber || '',
       legalCompanyName: initialData?.legalCompanyName || '',
-    } satisfies Step3FormData,
+    } satisfies AccountingDetailsFormData,
     validators: {
-      onChange: step3Schema,
+      onChange: accountingDetailsSchema,
     },
     onSubmit: async ({ value }) => {
       await onSubmit(value);

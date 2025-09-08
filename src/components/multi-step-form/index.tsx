@@ -1,26 +1,26 @@
 import { Accordion } from '@/components/ui/accordion';
 import { useState } from 'react';
 import { AccordionItemWrapper } from './AccordionItemWrapper';
+import { AccountingDetailsStep } from './AccountingDetailsStep';
+import { AddressDetailsStep } from './AddressDetailsStep';
+import { PersonalDetailsStep } from './PersonalDetailsStep';
 import {
-  type MultiStepFormData,
-  type Step1Data,
-  type Step2Data,
-  type Step3Data,
+  type AccountingDetailsFormData,
+  type AddressDetailsFormData,
+  type CompleteFormData,
+  type PersonalDetailsFormData,
 } from './schema';
-import { Step1Form } from './Step1Form';
-import { Step2Form } from './Step2Form';
-import { Step3Form } from './Step3Form';
 import { useGenericMultiStepForm } from './useGenericMultiStepForm';
 
 export function DraftForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const multiStepForm = useGenericMultiStepForm<
-    MultiStepFormData,
-    Step1Data | Step2Data | Step3Data
+    CompleteFormData,
+    PersonalDetailsFormData | AddressDetailsFormData | AccountingDetailsFormData
   >({
     totalSteps: 3,
-    onComplete: async (data: MultiStepFormData) => {
+    onComplete: async (data: CompleteFormData) => {
       setIsSubmitting(true);
       try {
         console.log('Complete form data:', data);
@@ -49,15 +49,15 @@ export function DraftForm() {
     getStepTitle,
   } = multiStepForm;
 
-  const handleStep1Next = async (data: Step1Data) => {
+  const handleStep1Next = async (data: PersonalDetailsFormData) => {
     return await goToNext(data);
   };
 
-  const handleStep2Next = async (data: Step2Data) => {
+  const handleStep2Next = async (data: AddressDetailsFormData) => {
     return await goToNext(data);
   };
 
-  const handleStep3Submit = async (data: Step3Data) => {
+  const handleStep3Submit = async (data: AccountingDetailsFormData) => {
     await completeForm(data);
   };
 
@@ -80,7 +80,7 @@ export function DraftForm() {
           title={getStepTitle(1, stepTitles)}
           canAccess={canAccessStep(1)}
         >
-          <Step1Form
+          <PersonalDetailsStep
             initialData={formData}
             onNext={handleStep1Next}
             onPrevious={goToPrevious}
@@ -93,7 +93,7 @@ export function DraftForm() {
           title={getStepTitle(2, stepTitles)}
           canAccess={canAccessStep(2)}
         >
-          <Step2Form
+          <AddressDetailsStep
             initialData={formData}
             onNext={handleStep2Next}
             onPrevious={goToPrevious}
@@ -106,7 +106,7 @@ export function DraftForm() {
           title={getStepTitle(3, stepTitles)}
           canAccess={canAccessStep(3)}
         >
-          <Step3Form
+          <AccountingDetailsStep
             initialData={formData}
             onPrevious={goToPrevious}
             onSubmit={handleStep3Submit}

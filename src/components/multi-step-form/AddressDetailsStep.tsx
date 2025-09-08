@@ -1,32 +1,32 @@
 import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/components/ui/form';
-import { step2Schema, type Step2FormData } from './schema';
+import { addressDetailsSchema, type AddressDetailsFormData } from './schema';
 
-type Step2FormProps = {
-  initialData?: Partial<Step2FormData>;
+type AddressDetailsStepProps = {
+  initialData?: Partial<AddressDetailsFormData>;
   onPrevious: () => void;
-  onNext?: (data: Step2FormData) => Promise<boolean>;
-  onSubmit?: (data: Step2FormData) => Promise<void>;
+  onNext?: (data: AddressDetailsFormData) => Promise<boolean>;
+  onSubmit?: (data: AddressDetailsFormData) => Promise<void>;
   isLastStep: boolean;
   isSubmitting?: boolean;
 };
 
-export function Step2Form({
+export function AddressDetailsStep({
   initialData,
   onPrevious,
   onNext,
   onSubmit,
   isLastStep,
   isSubmitting: externalSubmitting,
-}: Step2FormProps) {
+}: AddressDetailsStepProps) {
   const form = useAppForm({
     defaultValues: {
       address1: initialData?.address1 || '',
       postcode: initialData?.postcode || '',
       townCity: initialData?.townCity || '',
-    } satisfies Step2FormData,
+    } satisfies AddressDetailsFormData,
     validators: {
-      onChange: step2Schema,
+      onChange: addressDetailsSchema,
     },
     onSubmit: async ({ value }) => {
       if (isLastStep && onSubmit) {
