@@ -1,11 +1,9 @@
 import { useCallback, useState } from 'react';
 
-export function useGenericMultiStepForm<TCompleteData, TStepData = unknown>({
+export function useGenericMultiStepForm<TCompleteData>({
   totalSteps,
-  onComplete,
 }: {
   totalSteps: number;
-  onComplete: (data: TCompleteData) => void | Promise<void>;
 }) {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<Partial<TCompleteData>>({});
@@ -18,7 +16,7 @@ export function useGenericMultiStepForm<TCompleteData, TStepData = unknown>({
   }, []);
 
   const goToNext = useCallback(
-    async (stepData: TStepData) => {
+    async (stepData: Partial<TCompleteData>) => {
       // Update form data with current step data
       updateStepData(stepData as Partial<TCompleteData>);
 
@@ -49,24 +47,6 @@ export function useGenericMultiStepForm<TCompleteData, TStepData = unknown>({
       }
     },
     [totalSteps]
-  );
-
-  const completeForm = useCallback(
-    async (finalStepData: TStepData) => {
-      const completeData = {
-        ...formData,
-        ...finalStepData,
-      } as TCompleteData;
-      setFormData(completeData);
-
-      // Mark final step as completed
-      setCompletedSteps((prev) => new Set(prev).add(currentStep));
-
-      if (onComplete) {
-        await onComplete(completeData);
-      }
-    },
-    [formData, onComplete, currentStep]
   );
 
   const handleAccordionValueChange = useCallback(
@@ -102,7 +82,7 @@ export function useGenericMultiStepForm<TCompleteData, TStepData = unknown>({
     goToPrevious,
     goToStep,
     updateStepData,
-    completeForm,
+
     reset,
     completedSteps,
     activeAccordionValue,

@@ -4,64 +4,63 @@ import { Button } from '../ui/button';
 import { AccordionItemWrapper } from './AccordionItemWrapper';
 import { AccountingDetailsStep } from './AccountingDetailsStep';
 import { AddressDetailsStep } from './AddressDetailsStep';
-import { PersonalDetailsStep } from './PersonalDetailsStep';
+import { UserDetailsStep } from './UserDetailsStep';
 import {
-  type AccountingDetailsFormData,
-  type AddressDetailsFormData,
+  type AccountingFormData,
+  type AddressFormData,
   type CompleteFormData,
-  type PersonalDetailsFormData,
+  type UserFormData,
 } from './schema';
 import { useGenericMultiStepForm } from './useGenericMultiStepForm';
 
 export function DraftForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const multiStepForm = useGenericMultiStepForm<
-    CompleteFormData,
-    PersonalDetailsFormData | AddressDetailsFormData | AccountingDetailsFormData
-  >({
+  const multiStepForm = useGenericMultiStepForm<CompleteFormData>({
     totalSteps: 4,
-    onComplete: async (data: CompleteFormData) => {
-      setIsSubmitting(true);
-      try {
-        console.log('Complete form data:', data);
-        // Here you would typically send the data to your API
-        await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
-        alert('Form submitted successfully!');
-      } catch (error) {
-        console.error('Error submitting form:', error);
-        alert('Error submitting form. Please try again.');
-      } finally {
-        setIsSubmitting(false);
-      }
-    },
   });
 
   const {
     formData,
     goToNext,
     goToPrevious,
-    completeForm,
     activeAccordionValue,
     handleAccordionValueChange,
     canAccessStep,
     reset,
   } = multiStepForm;
 
-  const handleStep1Next = async (data: PersonalDetailsFormData) => {
-    return await goToNext(data);
+  const handleStep1Next = async (data: UserFormData) => {
+    return await goToNext({
+      user: data,
+    });
   };
 
-  const handleStep2Next = async (data: AddressDetailsFormData) => {
-    return await goToNext(data);
+  const handleStep2Next = async (data: AddressFormData) => {
+    return await goToNext({
+      address: data,
+    });
   };
 
-  const handleStep3Next = async (data: AccountingDetailsFormData) => {
-    return await goToNext(data);
+  const handleStep3Next = async (data: AccountingFormData) => {
+    return await goToNext({
+      accounting: data,
+    });
   };
 
-  const handleStep4Submit = async (data: CompleteFormData) => {
-    await completeForm(data);
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    try {
+      console.log('Complete form data:', formData);
+      // Here you would typically send the data to your API
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
+      alert('Form submitted successfully!');
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      alert('Error submitting form. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -77,8 +76,8 @@ export function DraftForm() {
           title="Personal Information"
           canAccess={canAccessStep(1)}
         >
-          <PersonalDetailsStep
-            initialData={formData}
+          <UserDetailsStep
+            initialData={formData.user}
             onNext={handleStep1Next}
           />
         </AccordionItemWrapper>
@@ -89,7 +88,7 @@ export function DraftForm() {
           canAccess={canAccessStep(2)}
         >
           <AddressDetailsStep
-            initialData={formData}
+            initialData={formData.address}
             onNext={handleStep2Next}
             onPrevious={goToPrevious}
           />
@@ -101,7 +100,7 @@ export function DraftForm() {
           canAccess={canAccessStep(3)}
         >
           <AccountingDetailsStep
-            initialData={formData}
+            initialData={formData.accounting}
             onPrevious={goToPrevious}
             onNext={handleStep3Next}
           />
@@ -120,9 +119,7 @@ export function DraftForm() {
               size="sm"
               variant="secondary"
               disabled={isSubmitting}
-              onClick={async () =>
-                await handleStep4Submit(formData as CompleteFormData)
-              }
+              onClick={handleSubmit}
             >
               Submit
             </Button>

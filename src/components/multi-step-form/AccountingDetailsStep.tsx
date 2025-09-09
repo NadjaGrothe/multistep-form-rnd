@@ -1,14 +1,11 @@
 import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/components/ui/form';
-import {
-  accountingDetailsSchema,
-  type AccountingDetailsFormData,
-} from './schema';
+import { accountingSchema, type AccountingFormData } from './schema';
 
 type AccountingDetailsStepProps = {
-  initialData?: Partial<AccountingDetailsFormData>;
+  initialData?: Partial<AccountingFormData>;
   onPrevious: () => void;
-  onNext: (data: AccountingDetailsFormData) => Promise<boolean>;
+  onNext: (data: AccountingFormData) => Promise<boolean>;
 };
 
 export function AccountingDetailsStep({
@@ -20,9 +17,9 @@ export function AccountingDetailsStep({
     defaultValues: {
       taxNumber: initialData?.taxNumber || '',
       legalCompanyName: initialData?.legalCompanyName || '',
-    } satisfies AccountingDetailsFormData,
+    } satisfies AccountingFormData,
     validators: {
-      onChange: accountingDetailsSchema,
+      onChange: accountingSchema,
     },
     onSubmit: async ({ value }) => {
       await onNext(value);

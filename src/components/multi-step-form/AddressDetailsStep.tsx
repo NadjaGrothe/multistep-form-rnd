@@ -1,11 +1,11 @@
 import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/components/ui/form';
-import { addressDetailsSchema, type AddressDetailsFormData } from './schema';
+import { addressSchema, type AddressFormData } from './schema';
 
 type AddressDetailsStepProps = {
-  initialData?: Partial<AddressDetailsFormData>;
+  initialData?: Partial<AddressFormData>;
   onPrevious: () => void;
-  onNext: (data: AddressDetailsFormData) => Promise<boolean>;
+  onNext: (data: AddressFormData) => Promise<boolean>;
 };
 
 export function AddressDetailsStep({
@@ -18,9 +18,9 @@ export function AddressDetailsStep({
       address1: initialData?.address1 || '',
       postcode: initialData?.postcode || '',
       townCity: initialData?.townCity || '',
-    } satisfies AddressDetailsFormData,
+    } satisfies AddressFormData,
     validators: {
-      onChange: addressDetailsSchema,
+      onChange: addressSchema,
     },
     onSubmit: async ({ value }) => {
       await onNext(value);

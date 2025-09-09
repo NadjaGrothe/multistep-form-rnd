@@ -1,13 +1,13 @@
 import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/components/ui/form';
-import { personalDetailsSchema, type PersonalDetailsFormData } from './schema';
+import { userSchema, type UserFormData } from './schema';
 
 type PersonalDetailsStepProps = {
-  initialData?: Partial<PersonalDetailsFormData>;
-  onNext: (data: PersonalDetailsFormData) => Promise<boolean>;
+  initialData?: Partial<UserFormData>;
+  onNext: (data: UserFormData) => Promise<boolean>;
 };
 
-export function PersonalDetailsStep({
+export function UserDetailsStep({
   initialData,
   onNext,
 }: PersonalDetailsStepProps) {
@@ -16,9 +16,9 @@ export function PersonalDetailsStep({
       nameFirst: initialData?.nameFirst || '',
       nameLast: initialData?.nameLast || '',
       email: initialData?.email || '',
-    } satisfies PersonalDetailsFormData,
+    } satisfies UserFormData,
     validators: {
-      onChange: personalDetailsSchema,
+      onChange: userSchema,
     },
     onSubmit: async ({ value }) => {
       await onNext(value);
