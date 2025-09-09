@@ -18,4 +18,7 @@ const defaultValues: CompleteFormData = {
   },
 };
 
-export const store = createMultiStepFormStore(defaultValues);
+//TODO: this will have to change, not sure how yet
+const stepOrder = ['user', 'address', 'accounting', 'confirmation'] as const;
+
+export const store = createMultiStepFormStore(defaultValues, stepOrder);

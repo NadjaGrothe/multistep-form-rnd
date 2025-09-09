@@ -8,8 +8,8 @@ export function useGenericMultiStepForm<TCompleteData>({
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<Partial<TCompleteData>>({});
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
-  const [activeAccordionValue, setActiveAccordionValue] =
-    useState<string>('step-1');
+  // const [activeAccordionValue, setActiveAccordionValue] =
+  //   useState<string>('step-1');
 
   const updateStepData = useCallback((stepData: Partial<TCompleteData>) => {
     setFormData((prev) => ({ ...prev, ...stepData }));
@@ -25,7 +25,7 @@ export function useGenericMultiStepForm<TCompleteData>({
 
         // Update completed steps and accordion value
         setCompletedSteps((prev) => new Set(prev).add(currentStep));
-        setActiveAccordionValue(`step-${currentStep + 1}`);
+        // setActiveAccordionValue(`step-${currentStep + 1}`);
 
         return true;
       }
@@ -49,18 +49,18 @@ export function useGenericMultiStepForm<TCompleteData>({
     [totalSteps]
   );
 
-  const handleAccordionValueChange = useCallback(
-    (value: string) => {
-      const stepNumber = parseInt(value.split('-')[1]);
+  // const handleAccordionValueChange = useCallback(
+  //   (value: string) => {
+  //     const stepNumber = parseInt(value.split('-')[1]);
 
-      // Only allow opening if it's step 1, or if previous steps are completed
-      if (stepNumber === 1 || completedSteps.has(stepNumber - 1)) {
-        setActiveAccordionValue(value);
-        setCurrentStep(stepNumber);
-      }
-    },
-    [completedSteps]
-  );
+  //     // Only allow opening if it's step 1, or if previous steps are completed
+  //     if (stepNumber === 1 || completedSteps.has(stepNumber - 1)) {
+  //       setActiveAccordionValue(value);
+  //       setCurrentStep(stepNumber);
+  //     }
+  //   },
+  //   [completedSteps]
+  // );
 
   const canAccessStep = useCallback(
     (step: number) => {
@@ -73,7 +73,7 @@ export function useGenericMultiStepForm<TCompleteData>({
     setCurrentStep(1);
     setFormData({});
     setCompletedSteps(new Set());
-    setActiveAccordionValue('step-1');
+    // setActiveAccordionValue('step-1');
   }, []);
 
   return {
@@ -82,11 +82,10 @@ export function useGenericMultiStepForm<TCompleteData>({
     goToPrevious,
     goToStep,
     updateStepData,
-
     reset,
     completedSteps,
-    activeAccordionValue,
-    handleAccordionValueChange,
+    // activeAccordionValue,
+    // handleAccordionValueChange,
     canAccessStep,
   };
 }

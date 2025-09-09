@@ -5,6 +5,7 @@ import { AccordionItemWrapper } from './AccordionItemWrapper';
 import { AccountingDetailsStep } from './AccountingDetailsStep';
 import { AddressDetailsStep } from './AddressDetailsStep';
 import { UserDetailsStep } from './UserDetailsStep';
+import { store } from './form-store';
 import {
   type AccountingFormData,
   type AddressFormData,
@@ -20,15 +21,8 @@ export function DraftForm() {
     totalSteps: 4,
   });
 
-  const {
-    formData,
-    goToNext,
-    goToPrevious,
-    activeAccordionValue,
-    handleAccordionValueChange,
-    canAccessStep,
-    reset,
-  } = multiStepForm;
+  const { formData, goToNext, goToPrevious, canAccessStep, reset } =
+    multiStepForm;
 
   const handleStep1Next = async (data: UserFormData) => {
     return await goToNext({
@@ -63,16 +57,20 @@ export function DraftForm() {
     }
   };
 
+  const accordionValue = store((state) => state.currentStep);
+  const goToStep = store((state) => state.goToStep);
+
   return (
     <div className="flex flex-col p-2 md:p-5 w-full mx-auto rounded-md max-w-3xl gap-4 border">
       <Accordion
         type="single"
-        value={activeAccordionValue}
-        onValueChange={handleAccordionValueChange}
+        value={accordionValue}
+        onValueChange={goToStep}
         className="w-full"
       >
         <AccordionItemWrapper
-          value="step-1"
+          //TODO: create enum for step values & reuse for stepOrder in store.ts
+          value="user"
           title="Personal Information"
           canAccess={canAccessStep(1)}
         >
@@ -80,19 +78,18 @@ export function DraftForm() {
         </AccordionItemWrapper>
 
         <AccordionItemWrapper
-          value="step-2"
+          value="address"
           title="Address Information"
           canAccess={canAccessStep(2)}
         >
           <AddressDetailsStep
-    
             onNext={handleStep2Next}
             onPrevious={goToPrevious}
           />
         </AccordionItemWrapper>
 
         <AccordionItemWrapper
-          value="step-3"
+          value="accounting"
           title="Accounting Information"
           canAccess={canAccessStep(3)}
         >
@@ -103,7 +100,7 @@ export function DraftForm() {
         </AccordionItemWrapper>
 
         <AccordionItemWrapper
-          value={'step-4'}
+          value="confirmation"
           title="Confirmation"
           canAccess={canAccessStep(4)}
         >
