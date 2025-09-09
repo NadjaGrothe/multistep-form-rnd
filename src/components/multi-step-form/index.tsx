@@ -1,5 +1,6 @@
 import { Accordion } from '@/components/ui/accordion';
 import { useState } from 'react';
+import { Button } from '../ui/button';
 import { AccordionItemWrapper } from './AccordionItemWrapper';
 import { AccountingDetailsStep } from './AccountingDetailsStep';
 import { AddressDetailsStep } from './AddressDetailsStep';
@@ -19,7 +20,7 @@ export function DraftForm() {
     CompleteFormData,
     PersonalDetailsFormData | AddressDetailsFormData | AccountingDetailsFormData
   >({
-    totalSteps: 3,
+    totalSteps: 4,
     onComplete: async (data: CompleteFormData) => {
       setIsSubmitting(true);
       try {
@@ -37,8 +38,6 @@ export function DraftForm() {
   });
 
   const {
-    isFirstStep,
-    isLastStep,
     formData,
     goToNext,
     goToPrevious,
@@ -46,7 +45,7 @@ export function DraftForm() {
     activeAccordionValue,
     handleAccordionValueChange,
     canAccessStep,
-    getStepTitle,
+    reset,
   } = multiStepForm;
 
   const handleStep1Next = async (data: PersonalDetailsFormData) => {
@@ -57,15 +56,13 @@ export function DraftForm() {
     return await goToNext(data);
   };
 
-  const handleStep3Submit = async (data: AccountingDetailsFormData) => {
-    await completeForm(data);
+  const handleStep3Next = async (data: AccountingDetailsFormData) => {
+    return await goToNext(data);
   };
 
-  const stepTitles = [
-    'Personal Information',
-    'Address Information',
-    'Accounting Information',
-  ];
+  const handleStep4Submit = async (data: CompleteFormData) => {
+    await completeForm(data);
+  };
 
   return (
     <div className="flex flex-col p-2 md:p-5 w-full mx-auto rounded-md max-w-3xl gap-4 border">
@@ -77,42 +74,62 @@ export function DraftForm() {
       >
         <AccordionItemWrapper
           value="step-1"
-          title={getStepTitle(1, stepTitles)}
+          title="Personal Information"
           canAccess={canAccessStep(1)}
         >
           <PersonalDetailsStep
             initialData={formData}
             onNext={handleStep1Next}
-            onPrevious={goToPrevious}
-            isFirstStep={isFirstStep}
           />
         </AccordionItemWrapper>
 
         <AccordionItemWrapper
           value="step-2"
-          title={getStepTitle(2, stepTitles)}
+          title="Address Information"
           canAccess={canAccessStep(2)}
         >
           <AddressDetailsStep
             initialData={formData}
             onNext={handleStep2Next}
             onPrevious={goToPrevious}
-            isLastStep={false}
           />
         </AccordionItemWrapper>
 
         <AccordionItemWrapper
           value="step-3"
-          title={getStepTitle(3, stepTitles)}
+          title="Accounting Information"
           canAccess={canAccessStep(3)}
         >
           <AccountingDetailsStep
             initialData={formData}
             onPrevious={goToPrevious}
-            onSubmit={handleStep3Submit}
-            isLastStep={isLastStep}
-            isSubmitting={isSubmitting}
+            onNext={handleStep3Next}
           />
+        </AccordionItemWrapper>
+
+        <AccordionItemWrapper
+          value={'step-4'}
+          title="Confirmation"
+          canAccess={canAccessStep(4)}
+        >
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold">Confirmation</h2>
+            <pre>{JSON.stringify(formData, null, 2)}</pre>
+            <Button
+              type="submit"
+              size="sm"
+              variant="secondary"
+              disabled={isSubmitting}
+              onClick={async () =>
+                await handleStep4Submit(formData as CompleteFormData)
+              }
+            >
+              Submit
+            </Button>
+            <Button type="button" size="sm" variant="secondary" onClick={reset}>
+              Reset
+            </Button>
+          </div>
         </AccordionItemWrapper>
       </Accordion>
     </div>

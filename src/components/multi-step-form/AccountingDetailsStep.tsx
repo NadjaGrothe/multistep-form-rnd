@@ -8,17 +8,13 @@ import {
 type AccountingDetailsStepProps = {
   initialData?: Partial<AccountingDetailsFormData>;
   onPrevious: () => void;
-  onSubmit: (data: AccountingDetailsFormData) => Promise<void>;
-  isLastStep: boolean;
-  isSubmitting?: boolean;
+  onNext: (data: AccountingDetailsFormData) => Promise<boolean>;
 };
 
 export function AccountingDetailsStep({
   initialData,
   onPrevious,
-  onSubmit,
-  isLastStep,
-  isSubmitting: externalSubmitting,
+  onNext,
 }: AccountingDetailsStepProps) {
   const form = useAppForm({
     defaultValues: {
@@ -29,7 +25,7 @@ export function AccountingDetailsStep({
       onChange: accountingDetailsSchema,
     },
     onSubmit: async ({ value }) => {
-      await onSubmit(value);
+      await onNext(value);
     },
   });
 
@@ -76,15 +72,10 @@ export function AccountingDetailsStep({
           <Button size="sm" variant="ghost" onClick={onPrevious} type="button">
             Previous
           </Button>
-          {isLastStep && (
-            <Button
-              size="sm"
-              type="submit"
-              disabled={isSubmitting || externalSubmitting}
-            >
-              {isSubmitting || externalSubmitting ? 'Submitting...' : 'Submit'}
-            </Button>
-          )}
+
+          <Button size="sm" type="submit" disabled={isSubmitting}>
+            Next
+          </Button>
         </div>
       </form>
     </form.AppForm>

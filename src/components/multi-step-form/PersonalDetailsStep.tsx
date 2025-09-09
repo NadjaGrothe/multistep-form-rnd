@@ -5,15 +5,11 @@ import { personalDetailsSchema, type PersonalDetailsFormData } from './schema';
 type PersonalDetailsStepProps = {
   initialData?: Partial<PersonalDetailsFormData>;
   onNext: (data: PersonalDetailsFormData) => Promise<boolean>;
-  onPrevious: () => void;
-  isFirstStep: boolean;
 };
 
 export function PersonalDetailsStep({
   initialData,
   onNext,
-  onPrevious,
-  isFirstStep,
 }: PersonalDetailsStepProps) {
   const form = useAppForm({
     defaultValues: {
@@ -81,15 +77,6 @@ export function PersonalDetailsStep({
         />
 
         <div className="flex items-center justify-between gap-3 w-full pt-3">
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={onPrevious}
-            type="button"
-            disabled={isFirstStep}
-          >
-            Previous
-          </Button>
           <Button
             size="sm"
             type="submit"

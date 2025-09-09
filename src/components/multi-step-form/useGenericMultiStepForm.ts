@@ -89,15 +89,6 @@ export function useGenericMultiStepForm<TCompleteData, TStepData = unknown>({
     [completedSteps]
   );
 
-  const getStepTitle = useCallback(
-    (step: number, titles: string[]) => {
-      const isCompleted = completedSteps.has(step);
-      const title = titles[step - 1];
-      return isCompleted ? `✓ ${title}` : title;
-    },
-    [completedSteps]
-  );
-
   const reset = useCallback(() => {
     setCurrentStep(1);
     setFormData({});
@@ -106,8 +97,6 @@ export function useGenericMultiStepForm<TCompleteData, TStepData = unknown>({
   }, []);
 
   return {
-    isFirstStep: currentStep === 1,
-    isLastStep: currentStep === totalSteps,
     formData,
     goToNext,
     goToPrevious,
@@ -119,6 +108,5 @@ export function useGenericMultiStepForm<TCompleteData, TStepData = unknown>({
     activeAccordionValue,
     handleAccordionValueChange,
     canAccessStep,
-    getStepTitle,
   };
 }

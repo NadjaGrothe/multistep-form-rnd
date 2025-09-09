@@ -5,19 +5,13 @@ import { addressDetailsSchema, type AddressDetailsFormData } from './schema';
 type AddressDetailsStepProps = {
   initialData?: Partial<AddressDetailsFormData>;
   onPrevious: () => void;
-  onNext?: (data: AddressDetailsFormData) => Promise<boolean>;
-  onSubmit?: (data: AddressDetailsFormData) => Promise<void>;
-  isLastStep: boolean;
-  isSubmitting?: boolean;
+  onNext: (data: AddressDetailsFormData) => Promise<boolean>;
 };
 
 export function AddressDetailsStep({
   initialData,
   onPrevious,
   onNext,
-  onSubmit,
-  isLastStep,
-  isSubmitting: externalSubmitting,
 }: AddressDetailsStepProps) {
   const form = useAppForm({
     defaultValues: {
@@ -29,11 +23,7 @@ export function AddressDetailsStep({
       onChange: addressDetailsSchema,
     },
     onSubmit: async ({ value }) => {
-      if (isLastStep && onSubmit) {
-        await onSubmit(value);
-      } else if (!isLastStep && onNext) {
-        await onNext(value);
-      }
+      await onNext(value);
     },
   });
 
@@ -92,24 +82,15 @@ export function AddressDetailsStep({
           <Button size="sm" variant="ghost" onClick={onPrevious} type="button">
             Previous
           </Button>
-          {isLastStep ? (
-            <Button
-              size="sm"
-              type="submit"
-              disabled={isSubmitting || externalSubmitting}
-            >
-              {isSubmitting || externalSubmitting ? 'Submitting...' : 'Submit'}
-            </Button>
-          ) : (
-            <Button
-              size="sm"
-              type="submit"
-              variant="secondary"
-              disabled={isSubmitting}
-            >
-              Next
-            </Button>
-          )}
+
+          <Button
+            size="sm"
+            type="submit"
+            variant="secondary"
+            disabled={isSubmitting}
+          >
+            Next
+          </Button>
         </div>
       </form>
     </form.AppForm>
