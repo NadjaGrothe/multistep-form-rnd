@@ -6,19 +6,9 @@ import { AccountingDetailsStep } from './AccountingDetailsStep';
 import { AddressDetailsStep } from './AddressDetailsStep';
 import { UserDetailsStep } from './UserDetailsStep';
 import { store } from './form-store';
-import {
-  // type AccountingFormData,
-  // type AddressFormData,
-  type CompleteFormData,
-} from './schema';
-import { useGenericMultiStepForm } from './useGenericMultiStepForm';
 
 export function DraftForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const multiStepForm = useGenericMultiStepForm<CompleteFormData>();
-
-  const { formData, canAccessStep, reset } = multiStepForm;
 
   // const handleStep1Next = async (data: UserFormData) => {
   //   return await goToNext({
@@ -41,7 +31,7 @@ export function DraftForm() {
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
-      console.log('Complete form data:', formData);
+      console.log('Complete form data:', data);
       // Here you would typically send the data to your API
       await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
       alert('Form submitted successfully!');
@@ -57,6 +47,8 @@ export function DraftForm() {
   const goToStep = store((state) => state.goToStep);
   const next = store((state) => state.next);
   const previous = store((state) => state.previous);
+  const reset = store((state) => state.reset);
+  const data = store((state) => state.data);
 
   return (
     <div className="flex flex-col p-2 md:p-5 w-full mx-auto rounded-md max-w-3xl gap-4 border">
@@ -70,7 +62,7 @@ export function DraftForm() {
           //TODO: create enum for step values & reuse for stepOrder in store.ts
           value="user"
           title="Personal Information"
-          canAccess={canAccessStep(1)}
+          // canAccess={canAccessStep(1)}
         >
           <UserDetailsStep onNext={next} />
         </AccordionItemWrapper>
@@ -78,7 +70,7 @@ export function DraftForm() {
         <AccordionItemWrapper
           value="address"
           title="Address Information"
-          canAccess={canAccessStep(2)}
+          // canAccess={canAccessStep(2)}
         >
           <AddressDetailsStep onNext={next} onPrevious={previous} />
         </AccordionItemWrapper>
@@ -86,7 +78,7 @@ export function DraftForm() {
         <AccordionItemWrapper
           value="accounting"
           title="Accounting Information"
-          canAccess={canAccessStep(3)}
+          // canAccess={canAccessStep(3)}
         >
           <AccountingDetailsStep onPrevious={previous} onNext={next} />
         </AccordionItemWrapper>
@@ -94,11 +86,11 @@ export function DraftForm() {
         <AccordionItemWrapper
           value="confirmation"
           title="Confirmation"
-          canAccess={canAccessStep(4)}
+          // canAccess={canAccessStep(4)}
         >
           <div className="space-y-4">
             <h2 className="text-xl font-semibold">Confirmation</h2>
-            <pre>{JSON.stringify(formData, null, 2)}</pre>
+            <pre>{JSON.stringify(data, null, 2)}</pre>
             <Button
               type="submit"
               size="sm"

@@ -1,12 +1,11 @@
 import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/components/ui/form';
 import { store } from './form-store';
-import { accountingSchema } from './schema';
+import { accountingSchema, type AccountingFormData } from './schema';
 
 type AccountingDetailsStepProps = {
-  onPrevious: () => void;
-  // onNext: (data: AccountingFormData) => Promise<boolean>;
-  onNext: () => void;
+  onPrevious: ({ accounting }: { accounting: AccountingFormData }) => void;
+  onNext: ({ accounting }: { accounting: AccountingFormData }) => void;
 };
 
 export function AccountingDetailsStep({
@@ -20,10 +19,8 @@ export function AccountingDetailsStep({
     validators: {
       onChange: accountingSchema,
     },
-    onSubmit: async ({ value }) => {
-      // await onNext(value);
-      console.log({ value });
-      onNext();
+    onSubmit: ({ value }) => {
+      onNext({ accounting: value });
     },
   });
 
@@ -67,7 +64,12 @@ export function AccountingDetailsStep({
         />
 
         <div className="flex items-center justify-between gap-3 w-full pt-3">
-          <Button size="sm" variant="ghost" onClick={onPrevious} type="button">
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => onPrevious({ accounting: form.state.values })}
+            type="button"
+          >
             Previous
           </Button>
 

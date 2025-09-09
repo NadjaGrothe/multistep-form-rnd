@@ -7,7 +7,7 @@ import {
 interface AccordionItemWrapperProps {
   value: string;
   title: string;
-  canAccess: boolean;
+  canAccess?: boolean; //TODO: remove conditional
   children: React.ReactNode;
   className?: string;
 }
@@ -15,7 +15,7 @@ interface AccordionItemWrapperProps {
 export function AccordionItemWrapper({
   value,
   title,
-  canAccess,
+  canAccess = true,
   children,
   className = 'border rounded-lg mb-2',
 }: AccordionItemWrapperProps) {
