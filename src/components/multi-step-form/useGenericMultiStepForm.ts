@@ -1,11 +1,12 @@
 import { useCallback, useState } from 'react';
 
-export function useGenericMultiStepForm<TCompleteData>({
-  totalSteps,
-}: {
-  totalSteps: number;
-}) {
-  const [currentStep, setCurrentStep] = useState(1);
+export function useGenericMultiStepForm<TCompleteData>() {
+  //   {
+  // totalSteps,
+  // }: {
+  // totalSteps: number;
+  //     }
+  // const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<Partial<TCompleteData>>({});
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
   // const [activeAccordionValue, setActiveAccordionValue] =
@@ -15,39 +16,39 @@ export function useGenericMultiStepForm<TCompleteData>({
     setFormData((prev) => ({ ...prev, ...stepData }));
   }, []);
 
-  const goToNext = useCallback(
-    async (stepData: Partial<TCompleteData>) => {
-      // Update form data with current step data
-      updateStepData(stepData as Partial<TCompleteData>);
+  // const goToNext = useCallback(
+  //   async (stepData: Partial<TCompleteData>) => {
+  //     // Update form data with current step data
+  //     updateStepData(stepData as Partial<TCompleteData>);
 
-      if (currentStep < totalSteps) {
-        setCurrentStep((prev) => prev + 1);
+  //     if (currentStep < totalSteps) {
+  //       setCurrentStep((prev) => prev + 1);
 
-        // Update completed steps and accordion value
-        setCompletedSteps((prev) => new Set(prev).add(currentStep));
-        // setActiveAccordionValue(`step-${currentStep + 1}`);
+  //       // Update completed steps and accordion value
+  //       setCompletedSteps((prev) => new Set(prev).add(currentStep));
+  //       // setActiveAccordionValue(`step-${currentStep + 1}`);
 
-        return true;
-      }
-      return false;
-    },
-    [currentStep, totalSteps, updateStepData]
-  );
+  //       return true;
+  //     }
+  //     return false;
+  //   },
+  //   [currentStep, totalSteps, updateStepData]
+  // );
 
-  const goToPrevious = useCallback(() => {
-    if (currentStep > 1) {
-      setCurrentStep((prev) => prev - 1);
-    }
-  }, [currentStep]);
+  // const goToPrevious = useCallback(() => {
+  //   if (currentStep > 1) {
+  //     setCurrentStep((prev) => prev - 1);
+  //   }
+  // }, [currentStep]);
 
-  const goToStep = useCallback(
-    (step: number) => {
-      if (step >= 1 && step <= totalSteps) {
-        setCurrentStep(step);
-      }
-    },
-    [totalSteps]
-  );
+  // const goToStep = useCallback(
+  //   (step: number) => {
+  //     if (step >= 1 && step <= totalSteps) {
+  //       setCurrentStep(step);
+  //     }
+  //   },
+  //   [totalSteps]
+  // );
 
   // const handleAccordionValueChange = useCallback(
   //   (value: string) => {
@@ -70,7 +71,7 @@ export function useGenericMultiStepForm<TCompleteData>({
   );
 
   const reset = useCallback(() => {
-    setCurrentStep(1);
+    // setCurrentStep(1);
     setFormData({});
     setCompletedSteps(new Set());
     // setActiveAccordionValue('step-1');
@@ -78,9 +79,9 @@ export function useGenericMultiStepForm<TCompleteData>({
 
   return {
     formData,
-    goToNext,
-    goToPrevious,
-    goToStep,
+    // goToNext,
+    // goToPrevious,
+    // goToStep,
     updateStepData,
     reset,
     completedSteps,

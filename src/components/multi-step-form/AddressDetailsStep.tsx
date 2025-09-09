@@ -1,11 +1,12 @@
 import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/components/ui/form';
 import { store } from './form-store';
-import { addressSchema, type AddressFormData } from './schema';
+import { addressSchema } from './schema';
 
 type AddressDetailsStepProps = {
   onPrevious: () => void;
-  onNext: (data: AddressFormData) => Promise<boolean>;
+  // onNext: (data: AddressFormData) => Promise<boolean>;
+  onNext: () => void;
 };
 
 export function AddressDetailsStep({
@@ -20,7 +21,9 @@ export function AddressDetailsStep({
       onChange: addressSchema,
     },
     onSubmit: async ({ value }) => {
-      await onNext(value);
+      // await onNext(value);
+      console.log({ value });
+      onNext();
     },
   });
 

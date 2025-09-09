@@ -7,40 +7,36 @@ import { AddressDetailsStep } from './AddressDetailsStep';
 import { UserDetailsStep } from './UserDetailsStep';
 import { store } from './form-store';
 import {
-  type AccountingFormData,
-  type AddressFormData,
+  // type AccountingFormData,
+  // type AddressFormData,
   type CompleteFormData,
-  type UserFormData,
 } from './schema';
 import { useGenericMultiStepForm } from './useGenericMultiStepForm';
 
 export function DraftForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const multiStepForm = useGenericMultiStepForm<CompleteFormData>({
-    totalSteps: 4,
-  });
+  const multiStepForm = useGenericMultiStepForm<CompleteFormData>();
 
-  const { formData, goToNext, goToPrevious, canAccessStep, reset } =
-    multiStepForm;
+  const { formData, canAccessStep, reset } = multiStepForm;
 
-  const handleStep1Next = async (data: UserFormData) => {
-    return await goToNext({
-      user: data,
-    });
-  };
+  // const handleStep1Next = async (data: UserFormData) => {
+  //   return await goToNext({
+  //     user: data,
+  //   });
+  // };
 
-  const handleStep2Next = async (data: AddressFormData) => {
-    return await goToNext({
-      address: data,
-    });
-  };
+  // const handleStep2Next = async (data: AddressFormData) => {
+  //   return await goToNext({
+  //     address: data,
+  //   });
+  // };
 
-  const handleStep3Next = async (data: AccountingFormData) => {
-    return await goToNext({
-      accounting: data,
-    });
-  };
+  // const handleStep3Next = async (data: AccountingFormData) => {
+  //   return await goToNext({
+  //     accounting: data,
+  //   });
+  // };
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
@@ -59,6 +55,8 @@ export function DraftForm() {
 
   const accordionValue = store((state) => state.currentStep);
   const goToStep = store((state) => state.goToStep);
+  const next = store((state) => state.next);
+  const previous = store((state) => state.previous);
 
   return (
     <div className="flex flex-col p-2 md:p-5 w-full mx-auto rounded-md max-w-3xl gap-4 border">
@@ -74,7 +72,7 @@ export function DraftForm() {
           title="Personal Information"
           canAccess={canAccessStep(1)}
         >
-          <UserDetailsStep onNext={handleStep1Next} />
+          <UserDetailsStep onNext={next} />
         </AccordionItemWrapper>
 
         <AccordionItemWrapper
@@ -82,10 +80,7 @@ export function DraftForm() {
           title="Address Information"
           canAccess={canAccessStep(2)}
         >
-          <AddressDetailsStep
-            onNext={handleStep2Next}
-            onPrevious={goToPrevious}
-          />
+          <AddressDetailsStep onNext={next} onPrevious={previous} />
         </AccordionItemWrapper>
 
         <AccordionItemWrapper
@@ -93,10 +88,7 @@ export function DraftForm() {
           title="Accounting Information"
           canAccess={canAccessStep(3)}
         >
-          <AccountingDetailsStep
-            onPrevious={goToPrevious}
-            onNext={handleStep3Next}
-          />
+          <AccountingDetailsStep onPrevious={previous} onNext={next} />
         </AccordionItemWrapper>
 
         <AccordionItemWrapper

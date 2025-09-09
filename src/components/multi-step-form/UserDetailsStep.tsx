@@ -1,10 +1,11 @@
 import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/components/ui/form';
 import { store } from './form-store';
-import { userSchema, type UserFormData } from './schema';
+import { userSchema } from './schema';
 
 type PersonalDetailsStepProps = {
-  onNext: (data: UserFormData) => Promise<boolean>;
+  // onNext: (data: UserFormData) => Promise<boolean>;
+  onNext: () => void;
 };
 
 export function UserDetailsStep({ onNext }: PersonalDetailsStepProps) {
@@ -16,7 +17,9 @@ export function UserDetailsStep({ onNext }: PersonalDetailsStepProps) {
       onChange: userSchema,
     },
     onSubmit: async ({ value }) => {
-      await onNext(value);
+      console.log({ value });
+      // await onNext(value);
+      onNext();
     },
   });
 

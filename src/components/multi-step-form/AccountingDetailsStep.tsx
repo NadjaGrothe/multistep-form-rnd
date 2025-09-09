@@ -1,11 +1,12 @@
 import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/components/ui/form';
 import { store } from './form-store';
-import { accountingSchema, type AccountingFormData } from './schema';
+import { accountingSchema } from './schema';
 
 type AccountingDetailsStepProps = {
   onPrevious: () => void;
-  onNext: (data: AccountingFormData) => Promise<boolean>;
+  // onNext: (data: AccountingFormData) => Promise<boolean>;
+  onNext: () => void;
 };
 
 export function AccountingDetailsStep({
@@ -20,7 +21,9 @@ export function AccountingDetailsStep({
       onChange: accountingSchema,
     },
     onSubmit: async ({ value }) => {
-      await onNext(value);
+      // await onNext(value);
+      console.log({ value });
+      onNext();
     },
   });
 
