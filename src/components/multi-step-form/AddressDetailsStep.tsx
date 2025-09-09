@@ -1,24 +1,21 @@
 import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/components/ui/form';
+import { store } from './form-store';
 import { addressSchema, type AddressFormData } from './schema';
 
 type AddressDetailsStepProps = {
-  initialData?: Partial<AddressFormData>;
   onPrevious: () => void;
   onNext: (data: AddressFormData) => Promise<boolean>;
 };
 
 export function AddressDetailsStep({
-  initialData,
   onPrevious,
   onNext,
 }: AddressDetailsStepProps) {
+  const defaultValues = store((state) => state.data.address);
+
   const form = useAppForm({
-    defaultValues: {
-      address1: initialData?.address1 || '',
-      postcode: initialData?.postcode || '',
-      townCity: initialData?.townCity || '',
-    } satisfies AddressFormData,
+    defaultValues,
     validators: {
       onChange: addressSchema,
     },

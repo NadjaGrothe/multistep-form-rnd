@@ -1,23 +1,21 @@
 import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/components/ui/form';
+import { store } from './form-store';
 import { accountingSchema, type AccountingFormData } from './schema';
 
 type AccountingDetailsStepProps = {
-  initialData?: Partial<AccountingFormData>;
   onPrevious: () => void;
   onNext: (data: AccountingFormData) => Promise<boolean>;
 };
 
 export function AccountingDetailsStep({
-  initialData,
   onPrevious,
   onNext,
 }: AccountingDetailsStepProps) {
+  const defaultValues = store((state) => state.data.accounting);
+
   const form = useAppForm({
-    defaultValues: {
-      taxNumber: initialData?.taxNumber || '',
-      legalCompanyName: initialData?.legalCompanyName || '',
-    } satisfies AccountingFormData,
+    defaultValues,
     validators: {
       onChange: accountingSchema,
     },

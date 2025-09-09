@@ -1,22 +1,17 @@
 import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/components/ui/form';
+import { store } from './form-store';
 import { userSchema, type UserFormData } from './schema';
 
 type PersonalDetailsStepProps = {
-  initialData?: Partial<UserFormData>;
   onNext: (data: UserFormData) => Promise<boolean>;
 };
 
-export function UserDetailsStep({
-  initialData,
-  onNext,
-}: PersonalDetailsStepProps) {
+export function UserDetailsStep({ onNext }: PersonalDetailsStepProps) {
+  const defaultValues = store((state) => state.data.user);
+
   const form = useAppForm({
-    defaultValues: {
-      nameFirst: initialData?.nameFirst || '',
-      nameLast: initialData?.nameLast || '',
-      email: initialData?.email || '',
-    } satisfies UserFormData,
+    defaultValues,
     validators: {
       onChange: userSchema,
     },

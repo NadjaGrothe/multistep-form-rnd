@@ -76,10 +76,7 @@ export function DraftForm() {
           title="Personal Information"
           canAccess={canAccessStep(1)}
         >
-          <UserDetailsStep
-            initialData={formData.user}
-            onNext={handleStep1Next}
-          />
+          <UserDetailsStep onNext={handleStep1Next} />
         </AccordionItemWrapper>
 
         <AccordionItemWrapper
@@ -88,7 +85,7 @@ export function DraftForm() {
           canAccess={canAccessStep(2)}
         >
           <AddressDetailsStep
-            initialData={formData.address}
+    
             onNext={handleStep2Next}
             onPrevious={goToPrevious}
           />
@@ -100,7 +97,6 @@ export function DraftForm() {
           canAccess={canAccessStep(3)}
         >
           <AccountingDetailsStep
-            initialData={formData.accounting}
             onPrevious={goToPrevious}
             onNext={handleStep3Next}
           />
