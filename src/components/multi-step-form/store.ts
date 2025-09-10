@@ -15,15 +15,19 @@ type MultiStepFormStore<T> = {
   stepValidation: Record<string, StepValidationState>;
   next: (stepData: Partial<T>) => void;
   previous: (stepData: Partial<T>) => void;
-  goToStep: (step: string) => void;
   updateData: (newData: Partial<T>) => void;
   setStepValidation: (
     step: string,
     isValid: boolean,
-    hasBeenCompleted: boolean
+    hasBeenCompleted?: boolean
   ) => void;
   canAccessStep: (step: string) => boolean;
   reset: () => void;
+
+  goToStepWithSync: (
+    step: string,
+    currentFormRef?: { syncWithStore: () => void }
+  ) => void;
 };
 
 export const createMultiStepFormStore = <T>(
@@ -52,7 +56,8 @@ export const createMultiStepFormStore = <T>(
           ...state.stepValidation,
           [step]: {
             isValid,
-            hasBeenCompleted,
+            hasBeenCompleted:
+              hasBeenCompleted ?? state.stepValidation[step].hasBeenCompleted,
           },
         },
       })),
@@ -99,7 +104,6 @@ export const createMultiStepFormStore = <T>(
         state.updateData(stepData);
         const currentStepIndex = state.currentStep.index;
 
-        // Backwards navigation is always allowed
         if (currentStepIndex > 0) {
           return {
             currentStep: {
@@ -111,11 +115,13 @@ export const createMultiStepFormStore = <T>(
         return {};
       }),
 
-    goToStep: (step) =>
+    goToStepWithSync: (step, currentFormRef) =>
       set(() => {
         const state = get();
+        if (currentFormRef) {
+          currentFormRef.syncWithStore();
+        }
 
-        // Only allow navigation to accessible steps
         if (state.canAccessStep(step)) {
           return {
             currentStep: {

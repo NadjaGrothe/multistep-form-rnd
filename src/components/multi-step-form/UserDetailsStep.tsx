@@ -1,18 +1,23 @@
 import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/components/ui/form';
 import { useStore } from '@tanstack/react-form';
-import { useEffect } from 'react';
+import { forwardRef, useImperativeHandle } from 'react';
 import { FORM_STEPS } from './constants';
 import { store } from './form-store';
 import { userSchema, type UserFormData } from './schema';
+import type { FormStepRef } from './types';
 
 type PersonalDetailsStepProps = {
   onNext: ({ user }: { user: UserFormData }) => void;
 };
 
-export function UserDetailsStep({ onNext }: PersonalDetailsStepProps) {
+export const UserDetailsStep = forwardRef<
+  FormStepRef,
+  PersonalDetailsStepProps
+>(function UserDetailsStep({ onNext }, ref) {
   const defaultValues = store((state) => state.data.user);
   const setStepValidation = store((state) => state.setStepValidation);
+  const updateData = store((state) => state.updateData);
   const hasStepBeenCompleted = store(
     (state) => state.stepValidation[FORM_STEPS.USER].hasBeenCompleted
   );
@@ -28,19 +33,32 @@ export function UserDetailsStep({ onNext }: PersonalDetailsStepProps) {
     },
   });
 
+  const isSubmitting = useStore(form.store, (state) => state.isSubmitting);
+  const isValid = useStore(form.store, (state) => state.isValid);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      syncWithStore: () => {
+        const isStepValid = hasStepBeenCompleted && isValid;
+        updateData({ user: form.state.values });
+        setStepValidation(FORM_STEPS.USER, isStepValid);
+      },
+    }),
+    [
+      updateData,
+      setStepValidation,
+      isValid,
+      hasStepBeenCompleted,
+      form.state.values,
+    ]
+  );
+
   const handleNext = async (e: React.FormEvent) => {
     e.preventDefault();
     e.stopPropagation();
     form.handleSubmit();
   };
-
-  const isSubmitting = useStore(form.store, (state) => state.isSubmitting);
-  // const isDefaultValue = useStore(form.store, (state) => state.isDefaultValue);
-  // const isValid = useStore(form.store, (state) => state.isValid);
-
-  useEffect(() => {
-    console.log({ hasStepBeenCompleted });
-  }, [hasStepBeenCompleted]);
 
   return (
     <form.AppForm>
@@ -94,4 +112,4 @@ export function UserDetailsStep({ onNext }: PersonalDetailsStepProps) {
       </form>
     </form.AppForm>
   );
-}
+});

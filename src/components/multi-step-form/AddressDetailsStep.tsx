@@ -1,21 +1,27 @@
 import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/components/ui/form';
+import { useStore } from '@tanstack/react-form';
+import { forwardRef, useImperativeHandle } from 'react';
 import { FORM_STEPS } from './constants';
 import { store } from './form-store';
 import { addressSchema, type AddressFormData } from './schema';
-import { useStore } from '@tanstack/react-form';
+import type { FormStepRef } from './types';
 
 type AddressDetailsStepProps = {
   onPrevious: ({ address }: { address: AddressFormData }) => void;
   onNext: ({ address }: { address: AddressFormData }) => void;
 };
 
-export function AddressDetailsStep({
-  onPrevious,
-  onNext,
-}: AddressDetailsStepProps) {
+export const AddressDetailsStep = forwardRef<
+  FormStepRef,
+  AddressDetailsStepProps
+>(function AddressDetailsStep({ onPrevious, onNext }, ref) {
   const defaultValues = store((state) => state.data.address);
   const setStepValidation = store((state) => state.setStepValidation);
+  const updateData = store((state) => state.updateData);
+  const hasStepBeenCompleted = store(
+    (state) => state.stepValidation[FORM_STEPS.ADDRESS].hasBeenCompleted
+  );
 
   const form = useAppForm({
     defaultValues,
@@ -28,13 +34,32 @@ export function AddressDetailsStep({
     },
   });
 
+  const isSubmitting = useStore(form.store, (state) => state.isSubmitting);
+  const isValid = useStore(form.store, (state) => state.isValid);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      syncWithStore: () => {
+        const isStepValid = hasStepBeenCompleted && isValid;
+        updateData({ address: form.state.values });
+        setStepValidation(FORM_STEPS.ADDRESS, isStepValid);
+      },
+    }),
+    [
+      updateData,
+      setStepValidation,
+      isValid,
+      hasStepBeenCompleted,
+      form.state.values,
+    ]
+  );
+
   const handleAction = async (e: React.FormEvent) => {
     e.preventDefault();
     e.stopPropagation();
     form.handleSubmit();
   };
-
-  const isSubmitting = useStore(form.store, (state) => state.isSubmitting);
 
   return (
     <form.AppForm>
@@ -97,4 +122,4 @@ export function AddressDetailsStep({
       </form>
     </form.AppForm>
   );
-}
+});

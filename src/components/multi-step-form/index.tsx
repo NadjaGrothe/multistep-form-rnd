@@ -1,5 +1,5 @@
 import { Accordion } from '@/components/ui/accordion';
-import { useEffect, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Button } from '../ui/button';
 import { AccordionItemWrapper } from './AccordionItemWrapper';
 import { AccountingDetailsStep } from './AccountingDetailsStep';
@@ -7,9 +7,13 @@ import { AddressDetailsStep } from './AddressDetailsStep';
 import { UserDetailsStep } from './UserDetailsStep';
 import { FORM_STEPS } from './constants';
 import { store } from './form-store';
+import type { FormStepRef } from './types';
 
 export function DraftForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const userStepRef = useRef<FormStepRef>(null);
+  const addressStepRef = useRef<FormStepRef>(null);
+  const accountingStepRef = useRef<FormStepRef>(null);
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
@@ -27,24 +31,37 @@ export function DraftForm() {
   };
 
   const accordionValue = store((state) => state.currentStep.value);
-  const goToStep = store((state) => state.goToStep);
+  const goToStepWithSync = store((state) => state.goToStepWithSync);
   const canAccessStep = store((state) => state.canAccessStep);
   const next = store((state) => state.next);
   const previous = store((state) => state.previous);
   const reset = store((state) => state.reset);
   const data = store((state) => state.data);
-  const stepValidation = store((state) => state.stepValidation);
 
-  useEffect(() => {
-    console.log('Step Validation State:', stepValidation);
-  }, [stepValidation]);
+  const handleAccordionChange = (newStep: string) => {
+    let currentFormRef: FormStepRef | null = null;
+
+    switch (accordionValue) {
+      case FORM_STEPS.USER:
+        currentFormRef = userStepRef.current;
+        break;
+      case FORM_STEPS.ADDRESS:
+        currentFormRef = addressStepRef.current;
+        break;
+      case FORM_STEPS.ACCOUNTING:
+        currentFormRef = accountingStepRef.current;
+        break;
+    }
+
+    goToStepWithSync(newStep, currentFormRef || undefined);
+  };
 
   return (
     <div className="flex flex-col p-2 md:p-5 w-full mx-auto rounded-md max-w-3xl gap-4 border">
       <Accordion
         type="single"
         value={accordionValue}
-        onValueChange={goToStep}
+        onValueChange={handleAccordionChange}
         className="w-full"
       >
         <AccordionItemWrapper
@@ -52,7 +69,7 @@ export function DraftForm() {
           title="Personal Information"
           canAccess={canAccessStep(FORM_STEPS.USER)}
         >
-          <UserDetailsStep onNext={next} />
+          <UserDetailsStep ref={userStepRef} onNext={next} />
         </AccordionItemWrapper>
 
         <AccordionItemWrapper
@@ -60,7 +77,11 @@ export function DraftForm() {
           title="Address Information"
           canAccess={canAccessStep(FORM_STEPS.ADDRESS)}
         >
-          <AddressDetailsStep onNext={next} onPrevious={previous} />
+          <AddressDetailsStep
+            ref={addressStepRef}
+            onNext={next}
+            onPrevious={previous}
+          />
         </AccordionItemWrapper>
 
         <AccordionItemWrapper
@@ -68,7 +89,11 @@ export function DraftForm() {
           title="Accounting Information"
           canAccess={canAccessStep(FORM_STEPS.ACCOUNTING)}
         >
-          <AccountingDetailsStep onPrevious={previous} onNext={next} />
+          <AccountingDetailsStep
+            ref={accountingStepRef}
+            onPrevious={previous}
+            onNext={next}
+          />
         </AccordionItemWrapper>
 
         <AccordionItemWrapper

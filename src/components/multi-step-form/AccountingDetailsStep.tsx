@@ -1,21 +1,27 @@
 import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/components/ui/form';
 import { useStore } from '@tanstack/react-form';
+import { forwardRef, useImperativeHandle } from 'react';
 import { FORM_STEPS } from './constants';
 import { store } from './form-store';
 import { accountingSchema, type AccountingFormData } from './schema';
+import type { FormStepRef } from './types';
 
 type AccountingDetailsStepProps = {
   onPrevious: ({ accounting }: { accounting: AccountingFormData }) => void;
   onNext: ({ accounting }: { accounting: AccountingFormData }) => void;
 };
 
-export function AccountingDetailsStep({
-  onPrevious,
-  onNext,
-}: AccountingDetailsStepProps) {
+export const AccountingDetailsStep = forwardRef<
+  FormStepRef,
+  AccountingDetailsStepProps
+>(function AccountingDetailsStep({ onPrevious, onNext }, ref) {
   const defaultValues = store((state) => state.data.accounting);
   const setStepValidation = store((state) => state.setStepValidation);
+  const updateData = store((state) => state.updateData);
+  const hasStepBeenCompleted = store(
+    (state) => state.stepValidation[FORM_STEPS.ACCOUNTING].hasBeenCompleted
+  );
 
   const form = useAppForm({
     defaultValues,
@@ -28,13 +34,32 @@ export function AccountingDetailsStep({
     },
   });
 
+  const isSubmitting = useStore(form.store, (state) => state.isSubmitting);
+  const isValid = useStore(form.store, (state) => state.isValid);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      syncWithStore: () => {
+        const isStepValid = hasStepBeenCompleted && isValid;
+        updateData({ accounting: form.state.values });
+        setStepValidation(FORM_STEPS.ACCOUNTING, isStepValid);
+      },
+    }),
+    [
+      updateData,
+      setStepValidation,
+      isValid,
+      hasStepBeenCompleted,
+      form.state.values,
+    ]
+  );
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     e.stopPropagation();
     form.handleSubmit();
   };
-
-  const isSubmitting = useStore(form.store, (state) => state.isSubmitting);
 
   return (
     <form.AppForm>
@@ -80,4 +105,4 @@ export function AccountingDetailsStep({
       </form>
     </form.AppForm>
   );
-}
+});
