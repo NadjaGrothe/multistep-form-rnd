@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/components/ui/form';
+import { useStore } from '@tanstack/react-form';
 import { FORM_STEPS } from './constants';
 import { store } from './form-store';
 import { userSchema, type UserFormData } from './schema';
@@ -21,9 +22,6 @@ export function UserDetailsStep({ onNext }: PersonalDetailsStepProps) {
       setStepValidation(FORM_STEPS.USER, true);
       onNext({ user: value });
     },
-    onSubmitInvalid: () => {
-      setStepValidation(FORM_STEPS.USER, false);
-    },
   });
 
   const handleNext = async (e: React.FormEvent) => {
@@ -32,11 +30,7 @@ export function UserDetailsStep({ onNext }: PersonalDetailsStepProps) {
     form.handleSubmit();
   };
 
-  const {
-    baseStore: {
-      state: { isSubmitting },
-    },
-  } = form;
+  const isSubmitting = useStore(form.store, (state) => state.isSubmitting);
 
   return (
     <form.AppForm>

@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/components/ui/form';
+import { useStore } from '@tanstack/react-form';
 import { FORM_STEPS } from './constants';
 import { store } from './form-store';
 import { accountingSchema, type AccountingFormData } from './schema';
@@ -25,9 +26,6 @@ export function AccountingDetailsStep({
       setStepValidation(FORM_STEPS.ACCOUNTING, true);
       onNext({ accounting: value });
     },
-    onSubmitInvalid: () => {
-      setStepValidation(FORM_STEPS.ACCOUNTING, false);
-    },
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -36,11 +34,7 @@ export function AccountingDetailsStep({
     form.handleSubmit();
   };
 
-  const {
-    baseStore: {
-      state: { isSubmitting },
-    },
-  } = form;
+  const isSubmitting = useStore(form.store, (state) => state.isSubmitting);
 
   return (
     <form.AppForm>

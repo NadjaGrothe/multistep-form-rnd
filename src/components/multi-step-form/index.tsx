@@ -1,5 +1,5 @@
 import { Accordion } from '@/components/ui/accordion';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '../ui/button';
 import { AccordionItemWrapper } from './AccordionItemWrapper';
 import { AccountingDetailsStep } from './AccountingDetailsStep';
@@ -10,24 +10,6 @@ import { store } from './form-store';
 
 export function DraftForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // const handleStep1Next = async (data: UserFormData) => {
-  //   return await goToNext({
-  //     user: data,
-  //   });
-  // };
-
-  // const handleStep2Next = async (data: AddressFormData) => {
-  //   return await goToNext({
-  //     address: data,
-  //   });
-  // };
-
-  // const handleStep3Next = async (data: AccountingFormData) => {
-  //   return await goToNext({
-  //     accounting: data,
-  //   });
-  // };
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
@@ -51,6 +33,11 @@ export function DraftForm() {
   const previous = store((state) => state.previous);
   const reset = store((state) => state.reset);
   const data = store((state) => state.data);
+  const stepValidation = store((state) => state.stepValidation);
+
+  useEffect(() => {
+    console.log('Step Validation State:', stepValidation);
+  }, [stepValidation]);
 
   return (
     <div className="flex flex-col p-2 md:p-5 w-full mx-auto rounded-md max-w-3xl gap-4 border">

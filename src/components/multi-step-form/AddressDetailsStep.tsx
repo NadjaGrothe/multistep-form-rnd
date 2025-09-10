@@ -3,6 +3,7 @@ import { useAppForm } from '@/components/ui/form';
 import { FORM_STEPS } from './constants';
 import { store } from './form-store';
 import { addressSchema, type AddressFormData } from './schema';
+import { useStore } from '@tanstack/react-form';
 
 type AddressDetailsStepProps = {
   onPrevious: ({ address }: { address: AddressFormData }) => void;
@@ -25,9 +26,6 @@ export function AddressDetailsStep({
       setStepValidation(FORM_STEPS.ADDRESS, true);
       onNext({ address: value });
     },
-    onSubmitInvalid: () => {
-      setStepValidation(FORM_STEPS.ADDRESS, false);
-    },
   });
 
   const handleAction = async (e: React.FormEvent) => {
@@ -36,11 +34,7 @@ export function AddressDetailsStep({
     form.handleSubmit();
   };
 
-  const {
-    baseStore: {
-      state: { isSubmitting },
-    },
-  } = form;
+  const isSubmitting = useStore(form.store, (state) => state.isSubmitting);
 
   return (
     <form.AppForm>
