@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/components/ui/form';
 import { useStore } from '@tanstack/react-form';
+import { useEffect } from 'react';
 import { FORM_STEPS } from './constants';
 import { store } from './form-store';
 import { userSchema, type UserFormData } from './schema';
@@ -12,6 +13,9 @@ type PersonalDetailsStepProps = {
 export function UserDetailsStep({ onNext }: PersonalDetailsStepProps) {
   const defaultValues = store((state) => state.data.user);
   const setStepValidation = store((state) => state.setStepValidation);
+  const hasStepBeenCompleted = store(
+    (state) => state.stepValidation[FORM_STEPS.USER].hasBeenCompleted
+  );
 
   const form = useAppForm({
     defaultValues,
@@ -19,7 +23,7 @@ export function UserDetailsStep({ onNext }: PersonalDetailsStepProps) {
       onChange: userSchema,
     },
     onSubmit: ({ value }) => {
-      setStepValidation(FORM_STEPS.USER, true);
+      setStepValidation(FORM_STEPS.USER, true, true);
       onNext({ user: value });
     },
   });
@@ -31,6 +35,12 @@ export function UserDetailsStep({ onNext }: PersonalDetailsStepProps) {
   };
 
   const isSubmitting = useStore(form.store, (state) => state.isSubmitting);
+  // const isDefaultValue = useStore(form.store, (state) => state.isDefaultValue);
+  // const isValid = useStore(form.store, (state) => state.isValid);
+
+  useEffect(() => {
+    console.log({ hasStepBeenCompleted });
+  }, [hasStepBeenCompleted]);
 
   return (
     <form.AppForm>

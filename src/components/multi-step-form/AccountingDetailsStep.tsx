@@ -23,7 +23,7 @@ export function AccountingDetailsStep({
       onChange: accountingSchema,
     },
     onSubmit: ({ value }) => {
-      setStepValidation(FORM_STEPS.ACCOUNTING, true);
+      setStepValidation(FORM_STEPS.ACCOUNTING, true, true);
       onNext({ accounting: value });
     },
   });

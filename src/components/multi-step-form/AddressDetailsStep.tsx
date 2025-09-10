@@ -23,7 +23,7 @@ export function AddressDetailsStep({
       onChange: addressSchema,
     },
     onSubmit: async ({ value }) => {
-      setStepValidation(FORM_STEPS.ADDRESS, true);
+      setStepValidation(FORM_STEPS.ADDRESS, true, true);
       onNext({ address: value });
     },
   });

@@ -2,8 +2,10 @@ import { create } from 'zustand';
 
 type StepValidationState = {
   isValid: boolean;
+  hasBeenCompleted: boolean;
 };
 
+//TODO: change types so 'step' is one of the values in stepOrder (as opposed to any string)
 type MultiStepFormStore<T> = {
   data: T;
   currentStep: {
@@ -15,7 +17,11 @@ type MultiStepFormStore<T> = {
   previous: (stepData: Partial<T>) => void;
   goToStep: (step: string) => void;
   updateData: (newData: Partial<T>) => void;
-  setStepValidation: (step: string, isValid: boolean) => void;
+  setStepValidation: (
+    step: string,
+    isValid: boolean,
+    hasBeenCompleted: boolean
+  ) => void;
   canAccessStep: (step: string) => boolean;
   reset: () => void;
 };
@@ -28,6 +34,7 @@ export const createMultiStepFormStore = <T>(
   stepOrder.forEach((step) => {
     initialStepValidation[step] = {
       isValid: false,
+      hasBeenCompleted: false,
     };
   });
 
@@ -39,12 +46,13 @@ export const createMultiStepFormStore = <T>(
     },
     stepValidation: initialStepValidation,
 
-    setStepValidation: (step, isValid) =>
+    setStepValidation: (step, isValid, hasBeenCompleted) =>
       set((state) => ({
         stepValidation: {
           ...state.stepValidation,
           [step]: {
             isValid,
+            hasBeenCompleted,
           },
         },
       })),
@@ -53,12 +61,6 @@ export const createMultiStepFormStore = <T>(
       const state = get();
       const targetIndex = stepOrder.indexOf(targetStep);
 
-      if (targetIndex === -1) return false;
-
-      // First step is always accessible
-      if (targetIndex === 0) return true;
-
-      // Check if all previous steps are valid
       for (let i = 0; i < targetIndex; i++) {
         const stepName = stepOrder[i];
         if (!state.stepValidation[stepName]?.isValid) {
@@ -132,6 +134,7 @@ export const createMultiStepFormStore = <T>(
         stepOrder.forEach((step) => {
           resetStepValidation[step] = {
             isValid: false,
+            hasBeenCompleted: false,
           };
         });
 
