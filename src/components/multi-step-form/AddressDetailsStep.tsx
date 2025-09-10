@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/components/ui/form';
+import { FORM_STEPS } from './constants';
 import { store } from './form-store';
 import { addressSchema, type AddressFormData } from './schema';
 
@@ -13,6 +14,7 @@ export function AddressDetailsStep({
   onNext,
 }: AddressDetailsStepProps) {
   const defaultValues = store((state) => state.data.address);
+  const setStepValidation = store((state) => state.setStepValidation);
 
   const form = useAppForm({
     defaultValues,
@@ -20,7 +22,11 @@ export function AddressDetailsStep({
       onChange: addressSchema,
     },
     onSubmit: async ({ value }) => {
+      setStepValidation(FORM_STEPS.ADDRESS, true);
       onNext({ address: value });
+    },
+    onSubmitInvalid: () => {
+      setStepValidation(FORM_STEPS.ADDRESS, false);
     },
   });
 

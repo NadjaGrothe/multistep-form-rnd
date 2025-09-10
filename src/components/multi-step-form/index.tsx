@@ -5,6 +5,7 @@ import { AccordionItemWrapper } from './AccordionItemWrapper';
 import { AccountingDetailsStep } from './AccountingDetailsStep';
 import { AddressDetailsStep } from './AddressDetailsStep';
 import { UserDetailsStep } from './UserDetailsStep';
+import { FORM_STEPS } from './constants';
 import { store } from './form-store';
 
 export function DraftForm() {
@@ -45,6 +46,7 @@ export function DraftForm() {
 
   const accordionValue = store((state) => state.currentStep.value);
   const goToStep = store((state) => state.goToStep);
+  const canAccessStep = store((state) => state.canAccessStep);
   const next = store((state) => state.next);
   const previous = store((state) => state.previous);
   const reset = store((state) => state.reset);
@@ -59,34 +61,33 @@ export function DraftForm() {
         className="w-full"
       >
         <AccordionItemWrapper
-          //TODO: create enum for step values & reuse for stepOrder in store.ts
-          value="user"
+          value={FORM_STEPS.USER}
           title="Personal Information"
-          // canAccess={canAccessStep(1)}
+          canAccess={canAccessStep(FORM_STEPS.USER)}
         >
           <UserDetailsStep onNext={next} />
         </AccordionItemWrapper>
 
         <AccordionItemWrapper
-          value="address"
+          value={FORM_STEPS.ADDRESS}
           title="Address Information"
-          // canAccess={canAccessStep(2)}
+          canAccess={canAccessStep(FORM_STEPS.ADDRESS)}
         >
           <AddressDetailsStep onNext={next} onPrevious={previous} />
         </AccordionItemWrapper>
 
         <AccordionItemWrapper
-          value="accounting"
+          value={FORM_STEPS.ACCOUNTING}
           title="Accounting Information"
-          // canAccess={canAccessStep(3)}
+          canAccess={canAccessStep(FORM_STEPS.ACCOUNTING)}
         >
           <AccountingDetailsStep onPrevious={previous} onNext={next} />
         </AccordionItemWrapper>
 
         <AccordionItemWrapper
-          value="confirmation"
+          value={FORM_STEPS.CONFIRMATION}
           title="Confirmation"
-          // canAccess={canAccessStep(4)}
+          canAccess={canAccessStep(FORM_STEPS.CONFIRMATION)}
         >
           <div className="space-y-4">
             <h2 className="text-xl font-semibold">Confirmation</h2>

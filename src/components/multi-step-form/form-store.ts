@@ -1,3 +1,4 @@
+import { STEP_ORDER } from './constants';
 import type { CompleteFormData } from './schema';
 import { createMultiStepFormStore } from './store';
 
@@ -18,7 +19,4 @@ const defaultValues: CompleteFormData = {
   },
 };
 
-//TODO: this will have to change, not sure how yet
-const stepOrder = ['user', 'address', 'accounting', 'confirmation'] as const;
-
-export const store = createMultiStepFormStore(defaultValues, stepOrder);
+export const store = createMultiStepFormStore(defaultValues, STEP_ORDER);

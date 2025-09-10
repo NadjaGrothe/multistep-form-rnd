@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/components/ui/form';
+import { FORM_STEPS } from './constants';
 import { store } from './form-store';
 import { userSchema, type UserFormData } from './schema';
 
@@ -9,6 +10,7 @@ type PersonalDetailsStepProps = {
 
 export function UserDetailsStep({ onNext }: PersonalDetailsStepProps) {
   const defaultValues = store((state) => state.data.user);
+  const setStepValidation = store((state) => state.setStepValidation);
 
   const form = useAppForm({
     defaultValues,
@@ -16,7 +18,11 @@ export function UserDetailsStep({ onNext }: PersonalDetailsStepProps) {
       onChange: userSchema,
     },
     onSubmit: ({ value }) => {
+      setStepValidation(FORM_STEPS.USER, true);
       onNext({ user: value });
+    },
+    onSubmitInvalid: () => {
+      setStepValidation(FORM_STEPS.USER, false);
     },
   });
 

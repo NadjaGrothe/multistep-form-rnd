@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/components/ui/form';
+import { FORM_STEPS } from './constants';
 import { store } from './form-store';
 import { accountingSchema, type AccountingFormData } from './schema';
 
@@ -13,6 +14,7 @@ export function AccountingDetailsStep({
   onNext,
 }: AccountingDetailsStepProps) {
   const defaultValues = store((state) => state.data.accounting);
+  const setStepValidation = store((state) => state.setStepValidation);
 
   const form = useAppForm({
     defaultValues,
@@ -20,7 +22,11 @@ export function AccountingDetailsStep({
       onChange: accountingSchema,
     },
     onSubmit: ({ value }) => {
+      setStepValidation(FORM_STEPS.ACCOUNTING, true);
       onNext({ accounting: value });
+    },
+    onSubmitInvalid: () => {
+      setStepValidation(FORM_STEPS.ACCOUNTING, false);
     },
   });
 
