@@ -5,7 +5,7 @@ import { AccordionItemWrapper } from './AccordionItemWrapper';
 import { AccountingDetailsStep } from './AccountingDetailsStep';
 import { AddressDetailsStep } from './AddressDetailsStep';
 import { UserDetailsStep } from './UserDetailsStep';
-import { FORM_STEPS } from './constants';
+import { FORM_STEPS, type FormStep } from './constants';
 import { store } from './form-store';
 import type { FormStepRef } from './types';
 
@@ -38,7 +38,7 @@ export function DraftForm() {
   const reset = store((state) => state.reset);
   const data = store((state) => state.data);
 
-  const handleAccordionChange = (newStep: string) => {
+  const handleAccordionChange = (newStep: FormStep) => {
     let currentFormRef: FormStepRef | null = null;
 
     switch (accordionValue) {

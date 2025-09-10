@@ -7,7 +7,7 @@ import {
 interface AccordionItemWrapperProps {
   value: string;
   title: string;
-  canAccess?: boolean; //TODO: remove conditional
+  canAccess: boolean;
   children: React.ReactNode;
   className?: string;
 }

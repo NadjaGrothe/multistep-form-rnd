@@ -5,44 +5,43 @@ type StepValidationState = {
   hasBeenCompleted: boolean;
 };
 
-//TODO: change types so 'step' is one of the values in stepOrder (as opposed to any string)
-type MultiStepFormStore<T> = {
+type MultiStepFormStore<T, S extends readonly string[]> = {
   data: T;
   currentStep: {
-    value: string;
+    value: S[number];
     index: number;
   };
-  stepValidation: Record<string, StepValidationState>;
+  stepValidation: Record<S[number], StepValidationState>;
   next: (stepData: Partial<T>) => void;
   previous: (stepData: Partial<T>) => void;
   updateData: (newData: Partial<T>) => void;
   setStepValidation: (
-    step: string,
+    step: S[number],
     isValid: boolean,
     hasBeenCompleted?: boolean
   ) => void;
-  canAccessStep: (step: string) => boolean;
+  canAccessStep: (step: S[number]) => boolean;
   reset: () => void;
 
   goToStepWithSync: (
-    step: string,
+    step: S[number],
     currentFormRef?: { syncWithStore: () => void }
   ) => void;
 };
 
-export const createMultiStepFormStore = <T>(
+export const createMultiStepFormStore = <T, S extends readonly string[]>(
   data: T,
-  stepOrder: readonly string[]
+  stepOrder: S
 ) => {
-  const initialStepValidation: Record<string, StepValidationState> = {};
-  stepOrder.forEach((step) => {
+  const initialStepValidation = {} as Record<S[number], StepValidationState>;
+  stepOrder.forEach((step: S[number]) => {
     initialStepValidation[step] = {
       isValid: false,
       hasBeenCompleted: false,
     };
   });
 
-  return create<MultiStepFormStore<T>>((set, get) => ({
+  return create<MultiStepFormStore<T, S>>((set, get) => ({
     data,
     currentStep: {
       value: stepOrder[0],
@@ -67,7 +66,7 @@ export const createMultiStepFormStore = <T>(
       const targetIndex = stepOrder.indexOf(targetStep);
 
       for (let i = 0; i < targetIndex; i++) {
-        const stepName = stepOrder[i];
+        const stepName: S[number] = stepOrder[i];
         if (!state.stepValidation[stepName]?.isValid) {
           return false;
         }
@@ -136,8 +135,11 @@ export const createMultiStepFormStore = <T>(
 
     reset: () =>
       set(() => {
-        const resetStepValidation: Record<string, StepValidationState> = {};
-        stepOrder.forEach((step) => {
+        const resetStepValidation = {} as Record<
+          S[number],
+          StepValidationState
+        >;
+        stepOrder.forEach((step: S[number]) => {
           resetStepValidation[step] = {
             isValid: false,
             hasBeenCompleted: false,
