@@ -2,10 +2,13 @@ import { create } from 'zustand';
 
 type MultiStepFormStore<T> = {
   data: T;
-  currentStep: string;
+  currentStep: {
+    value: string;
+    index: number;
+  };
   next: (stepData: Partial<T>) => void;
   previous: (stepData: Partial<T>) => void;
-  goToStep: (step: string, stepData: Partial<T>) => void;
+  goToStep: (step: string) => void;
   updateData: (newData: Partial<T>) => void;
   reset: () => void;
 };
@@ -19,14 +22,23 @@ export const createMultiStepFormStore = <T>(
     // - keep track of valid/completed steps (use to prevent going to inaccessible steps)
     // - somehow update data when going to specific step (find a way to access the form.state.values of each ste (child, but goToStep has to be called from parent))
     data,
-    currentStep: stepOrder[0], // could be an object with more info if needed (i.e. value, index, isComplete, isValid)
+    currentStep: {
+      value: stepOrder[0],
+      index: 0,
+    },
+
     next: (stepData) =>
       set(() => {
         const state = get();
         state.updateData(stepData);
-        const currentStepIndex = stepOrder.indexOf(state.currentStep);
+        const currentStepIndex = state.currentStep.index;
         if (currentStepIndex < stepOrder.length - 1) {
-          return { currentStep: stepOrder[currentStepIndex + 1] };
+          return {
+            currentStep: {
+              value: stepOrder[currentStepIndex + 1],
+              index: currentStepIndex + 1,
+            },
+          };
         }
         return {};
       }),
@@ -34,24 +46,34 @@ export const createMultiStepFormStore = <T>(
       set(() => {
         const state = get();
         state.updateData(stepData);
-        const currentStepIndex = stepOrder.indexOf(state.currentStep);
+        const currentStepIndex = state.currentStep.index;
         if (currentStepIndex > 0) {
-          return { currentStep: stepOrder[currentStepIndex - 1] };
+          return {
+            currentStep: {
+              value: stepOrder[currentStepIndex - 1],
+              index: currentStepIndex - 1,
+            },
+          };
         }
         return {};
       }),
 
     //TODO: add validation to prevent going to inaccessible steps & handle form value updates
-    goToStep: (step, stepData) =>
+    goToStep: (step) =>
       //TODO: how can I get the partially updated form data here?
       set(() => {
-        get().updateData(stepData);
-        return { currentStep: step };
+        // get().updateData(stepData);
+        return {
+          currentStep: {
+            value: step,
+            index: stepOrder.indexOf(step),
+          },
+        };
       }),
     reset: () =>
       set(() => {
         return {
-          currentStep: stepOrder[0],
+          currentStep: { value: stepOrder[0], index: 0 },
           data,
         };
       }),

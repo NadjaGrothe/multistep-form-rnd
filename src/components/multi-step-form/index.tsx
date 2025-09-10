@@ -43,7 +43,7 @@ export function DraftForm() {
     }
   };
 
-  const accordionValue = store((state) => state.currentStep);
+  const accordionValue = store((state) => state.currentStep.value);
   const goToStep = store((state) => state.goToStep);
   const next = store((state) => state.next);
   const previous = store((state) => state.previous);
