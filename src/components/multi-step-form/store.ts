@@ -47,12 +47,12 @@ export function createMultiStepFormStore<
   T extends Record<string, unknown>,
   Extra extends string = never
 >(
-  data: T,
+  initialData: T,
   options?: { extraSteps?: readonly Extra[] }
 ): UseBoundStore<StoreApi<MultiStepFormStore<T, (keyof T & string) | Extra>>> {
   type Step = (keyof T & string) | Extra;
 
-  const baseOrder = Object.keys(data) as (keyof T & string)[];
+  const baseOrder = Object.keys(initialData) as (keyof T & string)[];
   const extra = options?.extraSteps ?? [];
   const stepOrder: Step[] = [...baseOrder, ...extra];
 
@@ -64,7 +64,7 @@ export function createMultiStepFormStore<
   }, {} as Record<Step, StepValidationState>);
 
   return create<MultiStepFormStore<T, Step>>((set, get) => ({
-    data,
+    data: initialData,
     STEPS: (() => {
       const stepsBase = Object.fromEntries(
         baseOrder.map((k) => [k, k])
@@ -176,7 +176,7 @@ export function createMultiStepFormStore<
 
         return {
           currentStep: { value: stepOrder[0], index: 0 },
-          data,
+          initialData,
           stepValidation: resetStepValidation,
         };
       }),
