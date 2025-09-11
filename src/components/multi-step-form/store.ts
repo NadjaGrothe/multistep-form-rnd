@@ -6,7 +6,7 @@ type StepValidationState = {
   hasBeenCompleted: boolean;
 };
 
-type MultiStepFormStore<T, Step extends string> = {
+export type MultiStepFormStore<T, Step extends string> = {
   data: T;
   // Enum-like record of steps for type-safe access, e.g., steps.user
   STEPS: { [K in Step]: K };
@@ -172,7 +172,7 @@ export function createMultiStepFormStore<
 
         return {
           currentStep: { value: stepOrder[0], index: 0 },
-          initialData,
+          data: initialData,
           stepValidation: resetStepValidation,
         };
       }),
