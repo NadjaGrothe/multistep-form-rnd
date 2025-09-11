@@ -16,6 +16,7 @@ export type MultiStepFormStore<T, Step extends string> = {
     value: Step;
     index: number;
   };
+  highestVisitedIndex: number;
   stepValidation: Record<Step, StepValidationState>;
   next: (stepData: Partial<T>) => void;
   previous: (stepData: Partial<T>) => void;
@@ -75,6 +76,7 @@ export function createMultiStepFormStore<
       value: stepOrder[0],
       index: 0,
     },
+    highestVisitedIndex: 0,
     stepValidation: initialStepValidation,
 
     setStepValidation: (step, isValid, hasBeenCompleted) =>
@@ -93,14 +95,9 @@ export function createMultiStepFormStore<
       const state = get();
       const targetIndex = stepOrder.indexOf(targetStep);
 
-      for (let i = 0; i < targetIndex; i++) {
-        const stepName = stepOrder[i];
-        if (!state.stepValidation[stepName]?.isValid) {
-          return false;
-        }
-      }
+      if (targetIndex <= state.highestVisitedIndex) return true;
 
-      return true;
+      return false;
     },
 
     next: (stepData) =>
@@ -110,17 +107,14 @@ export function createMultiStepFormStore<
         const currentStepIndex = state.currentStep.index;
 
         if (currentStepIndex < stepOrder.length - 1) {
-          const nextStep = stepOrder[currentStepIndex + 1];
-
-          // Only proceed if next step is accessible
-          if (state.canAccessStep(nextStep)) {
-            return {
-              currentStep: {
-                value: nextStep,
-                index: currentStepIndex + 1,
-              },
-            };
-          }
+          const nextIndex = currentStepIndex + 1;
+          return {
+            currentStep: {
+              value: stepOrder[nextIndex],
+              index: nextIndex,
+            },
+            highestVisitedIndex: Math.max(state.highestVisitedIndex, nextIndex),
+          };
         }
         return {};
       }),
@@ -132,10 +126,11 @@ export function createMultiStepFormStore<
         const currentStepIndex = state.currentStep.index;
 
         if (currentStepIndex > 0) {
+          const newIndex = currentStepIndex - 1;
           return {
             currentStep: {
-              value: stepOrder[currentStepIndex - 1],
-              index: currentStepIndex - 1,
+              value: stepOrder[newIndex],
+              index: newIndex,
             },
           };
         }
@@ -149,16 +144,28 @@ export function createMultiStepFormStore<
           currentFormRef.syncWithStore();
         }
 
-        if (state.canAccessStep(step)) {
-          return {
-            currentStep: {
-              value: step,
-              index: stepOrder.indexOf(step),
-            },
-          };
+        const targetIndex = stepOrder.indexOf(step);
+
+        // Find the first invalid step up to the target (inclusive).
+        let firstInvalidIndex = -1;
+        for (let i = 0; i <= targetIndex; i++) {
+          const stepName = stepOrder[i];
+          if (!state.stepValidation[stepName]?.isValid) {
+            firstInvalidIndex = i;
+            break;
+          }
         }
 
-        return {};
+        const nextIndex =
+          firstInvalidIndex !== -1 ? firstInvalidIndex : targetIndex;
+        const nextStep = stepOrder[nextIndex];
+
+        return {
+          currentStep: {
+            value: nextStep,
+            index: nextIndex,
+          },
+        };
       }),
 
     reset: () =>
@@ -173,6 +180,7 @@ export function createMultiStepFormStore<
         return {
           currentStep: { value: stepOrder[0], index: 0 },
           data: initialData,
+          highestVisitedIndex: 0,
           stepValidation: resetStepValidation,
         };
       }),

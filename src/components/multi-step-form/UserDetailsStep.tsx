@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/components/ui/form';
 import { useStore } from '@tanstack/react-form';
-import { forwardRef, useImperativeHandle } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { store } from './form-store';
 import { userSchema, type UserFormData } from './schema';
 import type { FormStepRef } from './types';
@@ -21,6 +21,9 @@ export const UserDetailsStep = forwardRef<
   const hasStepBeenCompleted = store(
     (state) => state.stepValidation[STEPS.user].hasBeenCompleted
   );
+  const isValidInStore = store(
+    (state) => state.stepValidation[STEPS.address].isValid
+  );
 
   const form = useAppForm({
     defaultValues,
@@ -35,24 +38,18 @@ export const UserDetailsStep = forwardRef<
 
   const isSubmitting = useStore(form.store, (state) => state.isSubmitting);
   const isValid = useStore(form.store, (state) => state.isValid);
+  const isDefaultValue = useStore(form.store, (state) => state.isDefaultValue);
+
+  const [isStepValid, setIsStepValid] = useState(isValidInStore);
 
   useImperativeHandle(
     ref,
     () => ({
       syncWithStore: () => {
-        const isStepValid = hasStepBeenCompleted && isValid;
         updateData({ user: form.state.values });
-        setStepValidation(STEPS.user, isStepValid);
       },
     }),
-    [
-      updateData,
-      setStepValidation,
-      isValid,
-      hasStepBeenCompleted,
-      form.state.values,
-      STEPS.user,
-    ]
+    [updateData, form.state.values]
   );
 
   const handleNext = async (e: React.FormEvent) => {
@@ -60,6 +57,17 @@ export const UserDetailsStep = forwardRef<
     e.stopPropagation();
     form.handleSubmit();
   };
+
+  useEffect(() => {
+    const isValidStep =
+      (hasStepBeenCompleted && isDefaultValue && isValidInStore) ||
+      (!isDefaultValue && isValid);
+    setIsStepValid(isValidStep);
+  }, [isDefaultValue, isValid, hasStepBeenCompleted, isValidInStore]);
+
+  useEffect(() => {
+    setStepValidation(STEPS.user, isStepValid);
+  }, [isStepValid, setStepValidation, STEPS.user]);
 
   return (
     <form.AppForm>

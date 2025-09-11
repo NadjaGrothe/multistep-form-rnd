@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/components/ui/form';
 import { useStore } from '@tanstack/react-form';
-import { forwardRef, useImperativeHandle } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { store } from './form-store';
 import { accountingSchema, type AccountingFormData } from './schema';
 import type { FormStepRef } from './types';
@@ -22,6 +22,9 @@ export const AccountingDetailsStep = forwardRef<
   const hasStepBeenCompleted = store(
     (state) => state.stepValidation[STEPS.accounting].hasBeenCompleted
   );
+  const isValidInStore = store(
+    (state) => state.stepValidation[STEPS.address].isValid
+  );
 
   const form = useAppForm({
     defaultValues,
@@ -36,24 +39,18 @@ export const AccountingDetailsStep = forwardRef<
 
   const isSubmitting = useStore(form.store, (state) => state.isSubmitting);
   const isValid = useStore(form.store, (state) => state.isValid);
+  const isDefaultValue = useStore(form.store, (state) => state.isDefaultValue);
+
+  const [isStepValid, setIsStepValid] = useState(isValidInStore);
 
   useImperativeHandle(
     ref,
     () => ({
       syncWithStore: () => {
-        const isStepValid = hasStepBeenCompleted && isValid;
         updateData({ accounting: form.state.values });
-        setStepValidation(STEPS.accounting, isStepValid);
       },
     }),
-    [
-      updateData,
-      setStepValidation,
-      isValid,
-      hasStepBeenCompleted,
-      form.state.values,
-      STEPS.accounting,
-    ]
+    [updateData, form.state.values]
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -61,6 +58,17 @@ export const AccountingDetailsStep = forwardRef<
     e.stopPropagation();
     form.handleSubmit();
   };
+
+  useEffect(() => {
+    const isValidStep =
+      (hasStepBeenCompleted && isDefaultValue && isValidInStore) ||
+      (!isDefaultValue && isValid);
+    setIsStepValid(isValidStep);
+  }, [isDefaultValue, isValid, hasStepBeenCompleted, isValidInStore]);
+
+  useEffect(() => {
+    setStepValidation(STEPS.accounting, isStepValid);
+  }, [isStepValid, setStepValidation, STEPS.accounting]);
 
   return (
     <form.AppForm>
