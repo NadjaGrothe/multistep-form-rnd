@@ -52,7 +52,7 @@ export function createMultiStepFormStore<
 ): UseBoundStore<StoreApi<MultiStepFormStore<T, (keyof T & string) | Extra>>> {
   type Step = (keyof T & string) | Extra;
 
-  const baseOrder = Object.keys(initialData) as (keyof T & string)[];
+  const baseOrder: (keyof T & string)[] = Object.keys(initialData);
   const extra = options?.extraSteps ?? [];
   const stepOrder: Step[] = [...baseOrder, ...extra];
 
@@ -69,9 +69,10 @@ export function createMultiStepFormStore<
       const stepsBase = Object.fromEntries(
         baseOrder.map((k) => [k, k])
       ) as Record<keyof T & string, keyof T & string>;
-      const stepsExtra = Object.fromEntries(
-        (extra as readonly Extra[]).map((k) => [k, k])
-      ) as Record<Extra, Extra>;
+      const stepsExtra = Object.fromEntries(extra.map((k) => [k, k])) as Record<
+        Extra,
+        Extra
+      >;
       return { ...stepsBase, ...stepsExtra } as { [K in Step]: K };
     })(),
     stepOrder,
@@ -95,10 +96,10 @@ export function createMultiStepFormStore<
 
     canAccessStep: (targetStep) => {
       const state = get();
-      const targetIndex = stepOrder.indexOf(targetStep as Step);
+      const targetIndex = stepOrder.indexOf(targetStep);
 
       for (let i = 0; i < targetIndex; i++) {
-        const stepName = stepOrder[i] as Step;
+        const stepName = stepOrder[i];
         if (!state.stepValidation[stepName]?.isValid) {
           return false;
         }
@@ -114,7 +115,7 @@ export function createMultiStepFormStore<
         const currentStepIndex = state.currentStep.index;
 
         if (currentStepIndex < stepOrder.length - 1) {
-          const nextStep = stepOrder[currentStepIndex + 1] as Step;
+          const nextStep = stepOrder[currentStepIndex + 1];
 
           // Only proceed if next step is accessible
           if (state.canAccessStep(nextStep)) {
@@ -138,7 +139,7 @@ export function createMultiStepFormStore<
         if (currentStepIndex > 0) {
           return {
             currentStep: {
-              value: stepOrder[currentStepIndex - 1] as Step,
+              value: stepOrder[currentStepIndex - 1],
               index: currentStepIndex - 1,
             },
           };
@@ -157,7 +158,7 @@ export function createMultiStepFormStore<
           return {
             currentStep: {
               value: step,
-              index: stepOrder.indexOf(step as Step),
+              index: stepOrder.indexOf(step),
             },
           };
         }
