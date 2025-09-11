@@ -1,4 +1,4 @@
-import { STEP_ORDER } from './constants';
+import { FORM_STEPS } from './constants';
 import type { CompleteFormData } from './schema';
 import { createMultiStepFormStore } from './store';
 
@@ -19,4 +19,6 @@ const defaultValues: CompleteFormData = {
   },
 };
 
-export const store = createMultiStepFormStore(defaultValues, STEP_ORDER);
+export const store = createMultiStepFormStore(defaultValues, {
+  extraSteps: [FORM_STEPS.CONFIRMATION] as const,
+});

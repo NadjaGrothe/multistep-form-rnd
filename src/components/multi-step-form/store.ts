@@ -1,3 +1,4 @@
+import type { StoreApi, UseBoundStore } from 'zustand';
 import { create } from 'zustand';
 
 type StepValidationState = {
@@ -5,43 +6,60 @@ type StepValidationState = {
   hasBeenCompleted: boolean;
 };
 
-type MultiStepFormStore<T, S extends readonly string[]> = {
+type MultiStepFormStore<T, Step extends string> = {
   data: T;
   currentStep: {
-    value: S[number];
+    value: Step;
     index: number;
   };
-  stepValidation: Record<S[number], StepValidationState>;
+  stepValidation: Record<Step, StepValidationState>;
   next: (stepData: Partial<T>) => void;
   previous: (stepData: Partial<T>) => void;
   updateData: (newData: Partial<T>) => void;
   setStepValidation: (
-    step: S[number],
+    step: Step,
     isValid: boolean,
     hasBeenCompleted?: boolean
   ) => void;
-  canAccessStep: (step: S[number]) => boolean;
+  canAccessStep: (step: Step) => boolean;
   reset: () => void;
 
   goToStepWithSync: (
-    step: S[number],
+    step: Step,
     currentFormRef?: { syncWithStore: () => void }
   ) => void;
 };
 
-export const createMultiStepFormStore = <T, S extends readonly string[]>(
+// Overloads to keep strong typing when adding extra steps like 'confirmation'
+export function createMultiStepFormStore<
+  T extends Record<string, unknown>,
+  Extra extends string = never
+>(
   data: T,
-  stepOrder: S
-) => {
-  const initialStepValidation = {} as Record<S[number], StepValidationState>;
-  stepOrder.forEach((step: S[number]) => {
-    initialStepValidation[step] = {
-      isValid: false,
-      hasBeenCompleted: false,
-    };
-  });
+  options?: { extraSteps?: readonly Extra[] }
+): UseBoundStore<StoreApi<MultiStepFormStore<T, (keyof T & string) | Extra>>>;
 
-  return create<MultiStepFormStore<T, S>>((set, get) => ({
+export function createMultiStepFormStore<
+  T extends Record<string, unknown>,
+  Extra extends string = never
+>(
+  data: T,
+  options?: { extraSteps?: readonly Extra[] }
+): UseBoundStore<StoreApi<MultiStepFormStore<T, (keyof T & string) | Extra>>> {
+  type Step = (keyof T & string) | Extra;
+
+  const baseOrder = Object.keys(data) as (keyof T & string)[];
+  const extra = options?.extraSteps ?? [];
+  const stepOrder: Step[] = [...baseOrder, ...extra];
+
+  const initialStepValidation = stepOrder.reduce<
+    Record<Step, StepValidationState>
+  >((acc, step) => {
+    acc[step] = { isValid: false, hasBeenCompleted: false };
+    return acc;
+  }, {} as Record<Step, StepValidationState>);
+
+  return create<MultiStepFormStore<T, Step>>((set, get) => ({
     data,
     currentStep: {
       value: stepOrder[0],
@@ -63,10 +81,10 @@ export const createMultiStepFormStore = <T, S extends readonly string[]>(
 
     canAccessStep: (targetStep) => {
       const state = get();
-      const targetIndex = stepOrder.indexOf(targetStep);
+      const targetIndex = stepOrder.indexOf(targetStep as Step);
 
       for (let i = 0; i < targetIndex; i++) {
-        const stepName: S[number] = stepOrder[i];
+        const stepName = stepOrder[i] as Step;
         if (!state.stepValidation[stepName]?.isValid) {
           return false;
         }
@@ -82,7 +100,7 @@ export const createMultiStepFormStore = <T, S extends readonly string[]>(
         const currentStepIndex = state.currentStep.index;
 
         if (currentStepIndex < stepOrder.length - 1) {
-          const nextStep = stepOrder[currentStepIndex + 1];
+          const nextStep = stepOrder[currentStepIndex + 1] as Step;
 
           // Only proceed if next step is accessible
           if (state.canAccessStep(nextStep)) {
@@ -106,7 +124,7 @@ export const createMultiStepFormStore = <T, S extends readonly string[]>(
         if (currentStepIndex > 0) {
           return {
             currentStep: {
-              value: stepOrder[currentStepIndex - 1],
+              value: stepOrder[currentStepIndex - 1] as Step,
               index: currentStepIndex - 1,
             },
           };
@@ -125,7 +143,7 @@ export const createMultiStepFormStore = <T, S extends readonly string[]>(
           return {
             currentStep: {
               value: step,
-              index: stepOrder.indexOf(step),
+              index: stepOrder.indexOf(step as Step),
             },
           };
         }
@@ -135,16 +153,12 @@ export const createMultiStepFormStore = <T, S extends readonly string[]>(
 
     reset: () =>
       set(() => {
-        const resetStepValidation = {} as Record<
-          S[number],
-          StepValidationState
-        >;
-        stepOrder.forEach((step: S[number]) => {
-          resetStepValidation[step] = {
-            isValid: false,
-            hasBeenCompleted: false,
-          };
-        });
+        const resetStepValidation = stepOrder.reduce<
+          Record<Step, StepValidationState>
+        >((acc, step) => {
+          acc[step] = { isValid: false, hasBeenCompleted: false };
+          return acc;
+        }, {} as Record<Step, StepValidationState>);
 
         return {
           currentStep: { value: stepOrder[0], index: 0 },
@@ -161,4 +175,4 @@ export const createMultiStepFormStore = <T, S extends readonly string[]>(
         },
       })),
   }));
-};
+}
