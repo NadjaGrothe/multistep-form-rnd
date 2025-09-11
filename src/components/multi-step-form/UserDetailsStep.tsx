@@ -2,7 +2,6 @@ import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/components/ui/form';
 import { useStore } from '@tanstack/react-form';
 import { forwardRef, useImperativeHandle } from 'react';
-import { FORM_STEPS } from './constants';
 import { store } from './form-store';
 import { userSchema, type UserFormData } from './schema';
 import type { FormStepRef } from './types';
@@ -18,8 +17,9 @@ export const UserDetailsStep = forwardRef<
   const defaultValues = store((state) => state.data.user);
   const setStepValidation = store((state) => state.setStepValidation);
   const updateData = store((state) => state.updateData);
+  const STEPS = store((s) => s.STEPS);
   const hasStepBeenCompleted = store(
-    (state) => state.stepValidation[FORM_STEPS.USER].hasBeenCompleted
+    (state) => state.stepValidation[STEPS.user].hasBeenCompleted
   );
 
   const form = useAppForm({
@@ -28,7 +28,7 @@ export const UserDetailsStep = forwardRef<
       onChange: userSchema,
     },
     onSubmit: ({ value }) => {
-      setStepValidation(FORM_STEPS.USER, true, true);
+      setStepValidation(STEPS.user, true, true);
       onNext({ user: value });
     },
   });
@@ -42,7 +42,7 @@ export const UserDetailsStep = forwardRef<
       syncWithStore: () => {
         const isStepValid = hasStepBeenCompleted && isValid;
         updateData({ user: form.state.values });
-        setStepValidation(FORM_STEPS.USER, isStepValid);
+        setStepValidation(STEPS.user, isStepValid);
       },
     }),
     [
@@ -51,6 +51,7 @@ export const UserDetailsStep = forwardRef<
       isValid,
       hasStepBeenCompleted,
       form.state.values,
+      STEPS.user,
     ]
   );
 

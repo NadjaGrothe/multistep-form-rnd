@@ -8,6 +8,10 @@ type StepValidationState = {
 
 type MultiStepFormStore<T, Step extends string> = {
   data: T;
+  // Enum-like record of steps for type-safe access, e.g., steps.user
+  STEPS: { [K in Step]: K };
+  // The ordered list of steps as derived from default values + extras
+  stepOrder: readonly Step[];
   currentStep: {
     value: Step;
     index: number;
@@ -61,6 +65,16 @@ export function createMultiStepFormStore<
 
   return create<MultiStepFormStore<T, Step>>((set, get) => ({
     data,
+    STEPS: (() => {
+      const stepsBase = Object.fromEntries(
+        baseOrder.map((k) => [k, k])
+      ) as Record<keyof T & string, keyof T & string>;
+      const stepsExtra = Object.fromEntries(
+        (extra as readonly Extra[]).map((k) => [k, k])
+      ) as Record<Extra, Extra>;
+      return { ...stepsBase, ...stepsExtra } as { [K in Step]: K };
+    })(),
+    stepOrder,
     currentStep: {
       value: stepOrder[0],
       index: 0,

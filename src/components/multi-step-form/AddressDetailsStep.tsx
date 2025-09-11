@@ -2,7 +2,6 @@ import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/components/ui/form';
 import { useStore } from '@tanstack/react-form';
 import { forwardRef, useImperativeHandle } from 'react';
-import { FORM_STEPS } from './constants';
 import { store } from './form-store';
 import { addressSchema, type AddressFormData } from './schema';
 import type { FormStepRef } from './types';
@@ -19,8 +18,9 @@ export const AddressDetailsStep = forwardRef<
   const defaultValues = store((state) => state.data.address);
   const setStepValidation = store((state) => state.setStepValidation);
   const updateData = store((state) => state.updateData);
+  const STEPS = store((s) => s.STEPS);
   const hasStepBeenCompleted = store(
-    (state) => state.stepValidation[FORM_STEPS.ADDRESS].hasBeenCompleted
+    (state) => state.stepValidation[STEPS.address].hasBeenCompleted
   );
 
   const form = useAppForm({
@@ -29,7 +29,7 @@ export const AddressDetailsStep = forwardRef<
       onChange: addressSchema,
     },
     onSubmit: async ({ value }) => {
-      setStepValidation(FORM_STEPS.ADDRESS, true, true);
+      setStepValidation(STEPS.address, true, true);
       onNext({ address: value });
     },
   });
@@ -43,7 +43,7 @@ export const AddressDetailsStep = forwardRef<
       syncWithStore: () => {
         const isStepValid = hasStepBeenCompleted && isValid;
         updateData({ address: form.state.values });
-        setStepValidation(FORM_STEPS.ADDRESS, isStepValid);
+        setStepValidation(STEPS.address, isStepValid);
       },
     }),
     [
@@ -52,6 +52,7 @@ export const AddressDetailsStep = forwardRef<
       isValid,
       hasStepBeenCompleted,
       form.state.values,
+      STEPS.address,
     ]
   );
 

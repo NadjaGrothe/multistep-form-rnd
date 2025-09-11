@@ -5,9 +5,10 @@ import { AccordionItemWrapper } from './AccordionItemWrapper';
 import { AccountingDetailsStep } from './AccountingDetailsStep';
 import { AddressDetailsStep } from './AddressDetailsStep';
 import { UserDetailsStep } from './UserDetailsStep';
-import { FORM_STEPS, type FormStep } from './constants';
 import { store } from './form-store';
 import type { FormStepRef } from './types';
+
+type StoreStep = ReturnType<typeof store.getState>['currentStep']['value'];
 
 export function DraftForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -38,17 +39,18 @@ export function DraftForm() {
   const reset = store((state) => state.reset);
   const data = store((state) => state.data);
 
-  const handleAccordionChange = (newStep: FormStep) => {
+  const STEPS = store((s) => s.STEPS);
+  const handleAccordionChange = (newStep: StoreStep) => {
     let currentFormRef: FormStepRef | null = null;
 
     switch (accordionValue) {
-      case FORM_STEPS.USER:
+      case STEPS.user:
         currentFormRef = userStepRef.current;
         break;
-      case FORM_STEPS.ADDRESS:
+      case STEPS.address:
         currentFormRef = addressStepRef.current;
         break;
-      case FORM_STEPS.ACCOUNTING:
+      case STEPS.accounting:
         currentFormRef = accountingStepRef.current;
         break;
     }
@@ -65,17 +67,17 @@ export function DraftForm() {
         className="w-full"
       >
         <AccordionItemWrapper
-          value={FORM_STEPS.USER}
+          value={STEPS.user}
           title="Personal Information"
-          canAccess={canAccessStep(FORM_STEPS.USER)}
+          canAccess={canAccessStep(STEPS.user)}
         >
           <UserDetailsStep ref={userStepRef} onNext={next} />
         </AccordionItemWrapper>
 
         <AccordionItemWrapper
-          value={FORM_STEPS.ADDRESS}
+          value={STEPS.address}
           title="Address Information"
-          canAccess={canAccessStep(FORM_STEPS.ADDRESS)}
+          canAccess={canAccessStep(STEPS.address)}
         >
           <AddressDetailsStep
             ref={addressStepRef}
@@ -85,9 +87,9 @@ export function DraftForm() {
         </AccordionItemWrapper>
 
         <AccordionItemWrapper
-          value={FORM_STEPS.ACCOUNTING}
+          value={STEPS.accounting}
           title="Accounting Information"
-          canAccess={canAccessStep(FORM_STEPS.ACCOUNTING)}
+          canAccess={canAccessStep(STEPS.accounting)}
         >
           <AccountingDetailsStep
             ref={accountingStepRef}
@@ -97,9 +99,9 @@ export function DraftForm() {
         </AccordionItemWrapper>
 
         <AccordionItemWrapper
-          value={FORM_STEPS.CONFIRMATION}
+          value={STEPS.confirmation}
           title="Confirmation"
-          canAccess={canAccessStep(FORM_STEPS.CONFIRMATION)}
+          canAccess={canAccessStep(STEPS.confirmation)}
         >
           <div className="space-y-4">
             <h2 className="text-xl font-semibold">Confirmation</h2>

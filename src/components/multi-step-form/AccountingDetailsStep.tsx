@@ -2,7 +2,6 @@ import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/components/ui/form';
 import { useStore } from '@tanstack/react-form';
 import { forwardRef, useImperativeHandle } from 'react';
-import { FORM_STEPS } from './constants';
 import { store } from './form-store';
 import { accountingSchema, type AccountingFormData } from './schema';
 import type { FormStepRef } from './types';
@@ -19,8 +18,9 @@ export const AccountingDetailsStep = forwardRef<
   const defaultValues = store((state) => state.data.accounting);
   const setStepValidation = store((state) => state.setStepValidation);
   const updateData = store((state) => state.updateData);
+  const STEPS = store((s) => s.STEPS);
   const hasStepBeenCompleted = store(
-    (state) => state.stepValidation[FORM_STEPS.ACCOUNTING].hasBeenCompleted
+    (state) => state.stepValidation[STEPS.accounting].hasBeenCompleted
   );
 
   const form = useAppForm({
@@ -29,7 +29,7 @@ export const AccountingDetailsStep = forwardRef<
       onChange: accountingSchema,
     },
     onSubmit: ({ value }) => {
-      setStepValidation(FORM_STEPS.ACCOUNTING, true, true);
+      setStepValidation(STEPS.accounting, true, true);
       onNext({ accounting: value });
     },
   });
@@ -43,7 +43,7 @@ export const AccountingDetailsStep = forwardRef<
       syncWithStore: () => {
         const isStepValid = hasStepBeenCompleted && isValid;
         updateData({ accounting: form.state.values });
-        setStepValidation(FORM_STEPS.ACCOUNTING, isStepValid);
+        setStepValidation(STEPS.accounting, isStepValid);
       },
     }),
     [
@@ -52,6 +52,7 @@ export const AccountingDetailsStep = forwardRef<
       isValid,
       hasStepBeenCompleted,
       form.state.values,
+      STEPS.accounting,
     ]
   );
 
