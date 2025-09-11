@@ -34,15 +34,6 @@ type MultiStepFormStore<T, Step extends string> = {
   ) => void;
 };
 
-// Overloads to keep strong typing when adding extra steps like 'confirmation'
-export function createMultiStepFormStore<
-  T extends Record<string, unknown>,
-  Extra extends string = never
->(
-  data: T,
-  options?: { extraSteps?: readonly Extra[] }
-): UseBoundStore<StoreApi<MultiStepFormStore<T, (keyof T & string) | Extra>>>;
-
 export function createMultiStepFormStore<
   T extends Record<string, unknown>,
   Extra extends string = never
@@ -52,6 +43,7 @@ export function createMultiStepFormStore<
 ): UseBoundStore<StoreApi<MultiStepFormStore<T, (keyof T & string) | Extra>>> {
   type Step = (keyof T & string) | Extra;
 
+  /* Derive step order based on data keys + optional extra steps (i.e. confirmation) */
   const baseOrder: (keyof T & string)[] = Object.keys(initialData);
   const extra = options?.extraSteps ?? [];
   const stepOrder: Step[] = [...baseOrder, ...extra];
@@ -65,6 +57,9 @@ export function createMultiStepFormStore<
 
   return create<MultiStepFormStore<T, Step>>((set, get) => ({
     data: initialData,
+    /**
+     * Generated enum like object for steps (i.e. STEPS.user, STEPS.address, STEPS.confirmation, etc.)
+     */
     STEPS: (() => {
       const stepsBase = Object.fromEntries(
         baseOrder.map((k) => [k, k])
