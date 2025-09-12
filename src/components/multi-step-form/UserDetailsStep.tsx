@@ -1,16 +1,16 @@
 import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/components/ui/form';
-import { forwardRef, useImperativeHandle } from 'react';
+import { forwardRef } from 'react';
 import { store } from './form-store';
 import { userSchema } from './schema';
+import type { FormStepRef } from './types';
 import { useStepController } from './useStepController';
 
-export const UserDetailsStep = forwardRef(function UserDetailsStep(
+export const UserDetailsStep = forwardRef<FormStepRef>(function UserDetailsStep(
   _props,
   ref
 ) {
   const defaultValues = store((state) => state.data.user);
-  const updateData = store((state) => state.updateData);
   const next = store((state) => state.next);
   const STEPS = store((state) => state.STEPS);
 
@@ -26,17 +26,8 @@ export const UserDetailsStep = forwardRef(function UserDetailsStep(
     form,
     step: STEPS.user,
     store,
-  });
-
-  useImperativeHandle(
     ref,
-    () => ({
-      syncWithStore: () => {
-        updateData(STEPS.user, form.state.values);
-      },
-    }),
-    [updateData, form.state.values, STEPS.user]
-  );
+  });
 
   return (
     <form.AppForm>
