@@ -148,17 +148,15 @@ export function createMultiStepFormStore<
         const targetIndex = stepOrder.indexOf(step);
 
         // Find the first invalid step up to the target (inclusive).
-        let firstInvalidIndex = -1;
+        let nextIndex = targetIndex;
         for (let i = 0; i <= targetIndex; i++) {
           const stepName = stepOrder[i];
           if (!state.stepValidation[stepName]?.isValid) {
-            firstInvalidIndex = i;
+            nextIndex = i;
             break;
           }
         }
 
-        const nextIndex =
-          firstInvalidIndex !== -1 ? firstInvalidIndex : targetIndex;
         const nextStep = stepOrder[nextIndex];
 
         return {
