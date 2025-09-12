@@ -1,10 +1,10 @@
 import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/components/ui/form';
-import { useStore } from '@tanstack/react-form';
-import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
+import { forwardRef, useImperativeHandle } from 'react';
 import { store } from './form-store';
 import { accountingSchema, type AccountingFormData } from './schema';
 import type { FormStepRef } from './types';
+import { useStepValidation } from './useStepValidation';
 
 type AccountingDetailsStepProps = {
   onPrevious: ({ accounting }: { accounting: AccountingFormData }) => void;
@@ -19,12 +19,6 @@ export const AccountingDetailsStep = forwardRef<
   const setStepValidation = store((state) => state.setStepValidation);
   const updateData = store((state) => state.updateData);
   const STEPS = store((s) => s.STEPS);
-  const hasStepBeenCompleted = store(
-    (state) => state.stepValidation[STEPS.accounting].hasBeenCompleted
-  );
-  const isValidInStore = store(
-    (state) => state.stepValidation[STEPS.address].isValid
-  );
 
   const form = useAppForm({
     defaultValues,
@@ -36,12 +30,6 @@ export const AccountingDetailsStep = forwardRef<
       onNext({ accounting: value });
     },
   });
-
-  const isSubmitting = useStore(form.store, (state) => state.isSubmitting);
-  const isValid = useStore(form.store, (state) => state.isValid);
-  const isDefaultValue = useStore(form.store, (state) => state.isDefaultValue);
-
-  const [isStepValid, setIsStepValid] = useState(isValidInStore);
 
   useImperativeHandle(
     ref,
@@ -59,16 +47,12 @@ export const AccountingDetailsStep = forwardRef<
     form.handleSubmit();
   };
 
-  useEffect(() => {
-    const isValidStep =
-      (hasStepBeenCompleted && isDefaultValue && isValidInStore) ||
-      (!isDefaultValue && isValid);
-    setIsStepValid(isValidStep);
-  }, [isDefaultValue, isValid, hasStepBeenCompleted, isValidInStore]);
-
-  useEffect(() => {
-    setStepValidation(STEPS.accounting, isStepValid);
-  }, [isStepValid, setStepValidation, STEPS.accounting]);
+  const { isSubmitting } = useStepValidation({
+    form,
+    //@ts-expect-error fix types
+    step: STEPS.accounting,
+    store,
+  });
 
   return (
     <form.AppForm>
