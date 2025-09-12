@@ -34,10 +34,10 @@ export const AccountingDetailsStep = forwardRef(function AccountingDetailsStep(
     ref,
     () => ({
       syncWithStore: () => {
-        updateData({ accounting: form.state.values });
+        updateData(STEPS.accounting, form.state.values);
       },
     }),
-    [updateData, form.state.values]
+    [updateData, form.state.values, STEPS.accounting]
   );
 
   return (
@@ -71,7 +71,7 @@ export const AccountingDetailsStep = forwardRef(function AccountingDetailsStep(
           <Button
             size="sm"
             variant="ghost"
-            onClick={() => previous({ accounting: form.state.values })}
+            onClick={() => previous(STEPS.accounting, form.state.values)}
             type="button"
           >
             Previous

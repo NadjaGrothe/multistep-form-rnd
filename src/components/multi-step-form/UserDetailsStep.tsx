@@ -32,10 +32,10 @@ export const UserDetailsStep = forwardRef(function UserDetailsStep(
     ref,
     () => ({
       syncWithStore: () => {
-        updateData({ user: form.state.values });
+        updateData(STEPS.user, form.state.values);
       },
     }),
-    [updateData, form.state.values]
+    [updateData, form.state.values, STEPS.user]
   );
 
   return (

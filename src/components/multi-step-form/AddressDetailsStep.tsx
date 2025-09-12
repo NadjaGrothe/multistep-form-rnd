@@ -37,10 +37,10 @@ export const AddressDetailsStep = forwardRef(function AddressDetailsStep(
     ref,
     () => ({
       syncWithStore: () => {
-        updateData({ address: form.state.values });
+        updateData(STEPS.address, form.state.values);
       },
     }),
-    [updateData, form.state.values]
+    [updateData, form.state.values, STEPS.address]
   );
 
   return (
@@ -86,7 +86,7 @@ export const AddressDetailsStep = forwardRef(function AddressDetailsStep(
           <Button
             size="sm"
             variant="ghost"
-            onClick={() => previous({ address: form.state.values })}
+            onClick={() => previous(STEPS.address, form.state.values)}
             type="button"
           >
             Previous

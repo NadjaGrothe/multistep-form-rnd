@@ -18,13 +18,16 @@ export type MultiStepFormStore<T, Step extends string> = {
   };
   highestVisitedIndex: number;
   stepValidation: Record<Step, StepValidationState>;
-  previous: (stepData: Partial<T>) => void;
-  updateData: (newData: Partial<T>) => void;
   /**
    * Marks the step valid & completed then advances with the provided value.
    * Only callable for real data keys (excludes extra steps like confirmation).
    */
   next: <K extends keyof T>(step: K, value: T[K]) => void;
+  previous: <K extends keyof T>(step: K, value: T[K]) => void;
+  /**
+   * Update a single step's data (mirrors next signature but without navigation/validation side-effects)
+   */
+  updateData: <K extends keyof T>(step: K, value: T[K]) => void;
   setStepValidation: (
     step: Step,
     isValid: boolean,
@@ -107,7 +110,7 @@ export function createMultiStepFormStore<
     next: (step, value) => {
       const state = get();
       state.setStepValidation(step as Step, true, true);
-      state.updateData({ [step]: value } as unknown as Partial<T>);
+      state.updateData(step, value);
 
       const currentIndex = state.currentStep.index;
       if (currentIndex < stepOrder.length - 1) {
@@ -118,12 +121,11 @@ export function createMultiStepFormStore<
         });
       }
     },
-    previous: (stepData) =>
+    previous: (step, value) =>
       set(() => {
         const state = get();
-        state.updateData(stepData);
+        state.updateData(step, value);
         const currentStepIndex = state.currentStep.index;
-
         if (currentStepIndex > 0) {
           const newIndex = currentStepIndex - 1;
           return {
@@ -184,12 +186,15 @@ export function createMultiStepFormStore<
         };
       }),
 
-    updateData: (newData) =>
-      set(() => ({
-        data: {
-          ...get().data,
-          ...newData,
-        },
-      })),
+    updateData: (step, value) =>
+      set(() => {
+        const current = get().data;
+        return {
+          data: {
+            ...current,
+            [step]: value,
+          },
+        };
+      }),
   }));
 }
