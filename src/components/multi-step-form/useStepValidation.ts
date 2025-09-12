@@ -1,43 +1,27 @@
 import type { AnyFormApi } from '@tanstack/react-form';
+import { useStore as useFormStore } from '@tanstack/react-form';
 import { useEffect, useState } from 'react';
 import type { StoreApi, UseBoundStore } from 'zustand';
-// import type { MultiStepFormStore } from './store';
-import { useStore as useFormStore } from '@tanstack/react-form';
+import type { MultiStepFormStore } from './store';
 
-type StepOfStore<S> = S extends {
-  currentStep: { value: infer Step };
-}
-  ? Step extends string
-    ? Step
-    : never
-  : never;
+// Minimal slice we need from a MultiStepFormStore
+type StepValidationSlice<TData, Step extends string> = Pick<
+  MultiStepFormStore<TData, Step>,
+  'stepValidation' | 'setStepValidation'
+>;
 
-interface UseStep<S> {
-  form: AnyFormApi;
-  step: StepOfStore<S>;
-  store: S;
-}
-
-export const useStepValidation = <S extends UseBoundStore<StoreApi<unknown>>>({
-  form,
-  step,
-  store,
-}: UseStep<S>) => {
-  const isValidInStore = store(
-    //@ts-expect-error fix types
-    (state) => state.stepValidation[step].isValid
-  );
+export function useStepValidation<
+  TData extends Record<string, unknown>,
+  Step extends string,
+  TStore extends UseBoundStore<StoreApi<StepValidationSlice<TData, Step>>>
+>({ form, step, store }: { form: AnyFormApi; step: Step; store: TStore }) {
+  const isValidInStore = store((state) => state.stepValidation[step].isValid);
   const hasStepBeenCompleted = store(
-    //@ts-expect-error fix types
     (state) => state.stepValidation[step].hasBeenCompleted
   );
-  //@ts-expect-error fix types
   const setStepValidation = store((state) => state.setStepValidation);
 
   const [isStepValid, setIsStepValid] = useState(isValidInStore);
-
-  //TODO: isSubmitting doesn't belong here
-  const isSubmitting = useFormStore(form.store, (state) => state.isSubmitting);
 
   const isValid = useFormStore(form.store, (state) => state.isValid);
   const isDefaultValue = useFormStore(
@@ -46,17 +30,13 @@ export const useStepValidation = <S extends UseBoundStore<StoreApi<unknown>>>({
   );
 
   useEffect(() => {
-    const isValidStep =
+    const derived =
       (hasStepBeenCompleted && isDefaultValue && isValidInStore) ||
       (!isDefaultValue && isValid);
-    setIsStepValid(isValidStep);
-  }, [isDefaultValue, isValid, hasStepBeenCompleted, isValidInStore]);
+    setIsStepValid(derived);
+  }, [hasStepBeenCompleted, isDefaultValue, isValid, isValidInStore]);
 
   useEffect(() => {
     setStepValidation(step, isStepValid);
-  }, [isStepValid, setStepValidation, step]);
-
-  return {
-    isSubmitting,
-  };
-};
+  }, [step, isStepValid, setStepValidation]);
+}
