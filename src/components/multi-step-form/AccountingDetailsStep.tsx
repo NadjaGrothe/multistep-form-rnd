@@ -11,22 +11,23 @@ export const AccountingDetailsStep = forwardRef(function AccountingDetailsStep(
   ref
 ) {
   const defaultValues = store((state) => state.data.accounting);
-  const setStepValidation = store((state) => state.setStepValidation);
-  const updateData = store((state) => state.updateData);
-  const STEPS = store((s) => s.STEPS);
+  const STEPS = store((state) => state.STEPS);
 
+  const updateData = store((state) => state.updateData);
   const next = store((state) => state.next);
-  const previous = store((state) => state.previous);
 
   const form = useAppForm({
     defaultValues,
     validators: {
       onChange: accountingSchema,
     },
-    onSubmit: ({ value }) => {
-      setStepValidation(STEPS.accounting, true, true);
-      next({ accounting: value });
-    },
+    onSubmit: ({ value }) => next(STEPS.accounting, value),
+  });
+
+  const { isSubmitting, handleSubmit, previous } = useStepController({
+    form,
+    step: STEPS.accounting,
+    store,
   });
 
   useImperativeHandle(
@@ -38,12 +39,6 @@ export const AccountingDetailsStep = forwardRef(function AccountingDetailsStep(
     }),
     [updateData, form.state.values]
   );
-
-  const { isSubmitting, handleSubmit } = useStepController({
-    form,
-    step: STEPS.accounting,
-    store,
-  });
 
   return (
     <form.AppForm>

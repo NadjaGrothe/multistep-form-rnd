@@ -18,9 +18,13 @@ export type MultiStepFormStore<T, Step extends string> = {
   };
   highestVisitedIndex: number;
   stepValidation: Record<Step, StepValidationState>;
-  next: (stepData: Partial<T>) => void;
   previous: (stepData: Partial<T>) => void;
   updateData: (newData: Partial<T>) => void;
+  /**
+   * Marks the step valid & completed then advances with the provided value.
+   * Only callable for real data keys (excludes extra steps like confirmation).
+   */
+  next: <K extends keyof T>(step: K, value: T[K]) => void;
   setStepValidation: (
     step: Step,
     isValid: boolean,
@@ -100,25 +104,20 @@ export function createMultiStepFormStore<
       return false;
     },
 
-    next: (stepData) =>
-      set(() => {
-        const state = get();
-        state.updateData(stepData);
-        const currentStepIndex = state.currentStep.index;
+    next: (step, value) => {
+      const state = get();
+      state.setStepValidation(step as Step, true, true);
+      state.updateData({ [step]: value } as unknown as Partial<T>);
 
-        if (currentStepIndex < stepOrder.length - 1) {
-          const nextIndex = currentStepIndex + 1;
-          return {
-            currentStep: {
-              value: stepOrder[nextIndex],
-              index: nextIndex,
-            },
-            highestVisitedIndex: Math.max(state.highestVisitedIndex, nextIndex),
-          };
-        }
-        return {};
-      }),
-
+      const currentIndex = state.currentStep.index;
+      if (currentIndex < stepOrder.length - 1) {
+        const nextIndex = currentIndex + 1;
+        set({
+          currentStep: { value: stepOrder[nextIndex], index: nextIndex },
+          highestVisitedIndex: Math.max(state.highestVisitedIndex, nextIndex),
+        });
+      }
+    },
     previous: (stepData) =>
       set(() => {
         const state = get();

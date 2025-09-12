@@ -10,21 +10,22 @@ export const UserDetailsStep = forwardRef(function UserDetailsStep(
   ref
 ) {
   const defaultValues = store((state) => state.data.user);
-  const setStepValidation = store((state) => state.setStepValidation);
   const updateData = store((state) => state.updateData);
-  const STEPS = store((s) => s.STEPS);
-
   const next = store((state) => state.next);
+  const STEPS = store((state) => state.STEPS);
 
   const form = useAppForm({
     defaultValues,
     validators: {
       onChange: userSchema,
     },
-    onSubmit: ({ value }) => {
-      setStepValidation(STEPS.user, true, true);
-      next({ user: value });
-    },
+    onSubmit: ({ value }) => next(STEPS.user, value),
+  });
+
+  const { isSubmitting, handleSubmit } = useStepController({
+    form,
+    step: STEPS.user,
+    store,
   });
 
   useImperativeHandle(
@@ -36,12 +37,6 @@ export const UserDetailsStep = forwardRef(function UserDetailsStep(
     }),
     [updateData, form.state.values]
   );
-
-  const { isSubmitting, handleSubmit } = useStepController({
-    form,
-    step: STEPS.user,
-    store,
-  });
 
   return (
     <form.AppForm>

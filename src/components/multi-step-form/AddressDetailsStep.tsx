@@ -10,24 +10,28 @@ export const AddressDetailsStep = forwardRef(function AddressDetailsStep(
   _props,
   ref
 ) {
+  //keep in component
   const defaultValues = store((state) => state.data.address);
-  const setStepValidation = store((state) => state.setStepValidation);
-  const updateData = store((state) => state.updateData);
-  const STEPS = store((s) => s.STEPS);
-
+  const STEPS = store((state) => state.STEPS);
   const next = store((state) => state.next);
-  const previous = store((state) => state.previous);
 
   const form = useAppForm({
     defaultValues,
     validators: {
       onChange: addressSchema,
     },
-    onSubmit: async ({ value }) => {
-      setStepValidation(STEPS.address, true, true);
-      next({ address: value });
-    },
+    onSubmit: async ({ value }) => next(STEPS.address, value),
   });
+
+  // custom hook
+  const { isSubmitting, handleSubmit, previous } = useStepController({
+    form,
+    step: STEPS.address,
+    store,
+  });
+
+  // check if can be moved to custom hook
+  const updateData = store((state) => state.updateData);
 
   useImperativeHandle(
     ref,
@@ -38,11 +42,6 @@ export const AddressDetailsStep = forwardRef(function AddressDetailsStep(
     }),
     [updateData, form.state.values]
   );
-  const { isSubmitting, handleSubmit } = useStepController({
-    form,
-    step: STEPS.address,
-    store,
-  });
 
   return (
     <form.AppForm>

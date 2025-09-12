@@ -6,7 +6,7 @@ import { useStepValidation } from './useStepValidation';
 
 type StepControllerSlice<TData, Step extends string> = Pick<
   MultiStepFormStore<TData, Step>,
-  'stepValidation' | 'setStepValidation'
+  'stepValidation' | 'setStepValidation' | 'previous'
 >;
 
 interface UseStepControllerProps<TStore, Step> {
@@ -38,5 +38,7 @@ export const useStepController = <
     form.handleSubmit();
   };
 
-  return { isSubmitting, handleSubmit };
+  const previous = store((state) => state.previous);
+
+  return { isSubmitting, handleSubmit, previous };
 };
