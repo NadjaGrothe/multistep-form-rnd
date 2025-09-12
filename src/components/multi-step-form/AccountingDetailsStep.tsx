@@ -1,11 +1,11 @@
 import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/components/ui/form';
-import { useStore as useFormStore } from '@tanstack/react-form';
 import { forwardRef, useImperativeHandle } from 'react';
 import { store } from './form-store';
 import { accountingSchema, type AccountingFormData } from './schema';
 import type { FormStepRef } from './types';
-import { useStepValidation } from './useStepValidation';
+
+import { useStepController } from './useStepController';
 
 type AccountingDetailsStepProps = {
   onPrevious: ({ accounting }: { accounting: AccountingFormData }) => void;
@@ -32,8 +32,6 @@ export const AccountingDetailsStep = forwardRef<
     },
   });
 
-  const isSubmitting = useFormStore(form.store, (state) => state.isSubmitting);
-
   useImperativeHandle(
     ref,
     () => ({
@@ -44,13 +42,7 @@ export const AccountingDetailsStep = forwardRef<
     [updateData, form.state.values]
   );
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    form.handleSubmit();
-  };
-
-  useStepValidation({
+  const { isSubmitting, handleSubmit } = useStepController({
     form,
     step: STEPS.accounting,
     store,

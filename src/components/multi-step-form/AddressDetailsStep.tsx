@@ -1,11 +1,10 @@
 import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/components/ui/form';
-import { useStore as useFormStore } from '@tanstack/react-form';
 import { forwardRef, useImperativeHandle } from 'react';
 import { store } from './form-store';
 import { addressSchema, type AddressFormData } from './schema';
 import type { FormStepRef } from './types';
-import { useStepValidation } from './useStepValidation';
+import { useStepController } from './useStepController';
 
 type AddressDetailsStepProps = {
   onPrevious: ({ address }: { address: AddressFormData }) => void;
@@ -32,8 +31,6 @@ export const AddressDetailsStep = forwardRef<
     },
   });
 
-  const isSubmitting = useFormStore(form.store, (state) => state.isSubmitting);
-
   useImperativeHandle(
     ref,
     () => ({
@@ -43,14 +40,7 @@ export const AddressDetailsStep = forwardRef<
     }),
     [updateData, form.state.values]
   );
-
-  const handleAction = async (e: React.FormEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    form.handleSubmit();
-  };
-
-  useStepValidation({
+  const { isSubmitting, handleSubmit } = useStepController({
     form,
     step: STEPS.address,
     store,
@@ -58,7 +48,7 @@ export const AddressDetailsStep = forwardRef<
 
   return (
     <form.AppForm>
-      <form onSubmit={handleAction} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <h2 className="text-xl font-semibold">Address Information</h2>
 
         <form.AppField

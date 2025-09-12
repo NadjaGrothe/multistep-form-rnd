@@ -1,11 +1,10 @@
 import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/components/ui/form';
-import { useStore as useFormStore } from '@tanstack/react-form';
 import { forwardRef, useImperativeHandle } from 'react';
 import { store } from './form-store';
 import { userSchema, type UserFormData } from './schema';
 import type { FormStepRef } from './types';
-import { useStepValidation } from './useStepValidation';
+import { useStepController } from './useStepController';
 
 type PersonalDetailsStepProps = {
   onNext: ({ user }: { user: UserFormData }) => void;
@@ -31,8 +30,6 @@ export const UserDetailsStep = forwardRef<
     },
   });
 
-  const isSubmitting = useFormStore(form.store, (state) => state.isSubmitting);
-
   useImperativeHandle(
     ref,
     () => ({
@@ -43,17 +40,15 @@ export const UserDetailsStep = forwardRef<
     [updateData, form.state.values]
   );
 
-  const handleNext = async (e: React.FormEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    form.handleSubmit();
-  };
-
-  useStepValidation({ form, step: STEPS.user, store });
+  const { isSubmitting, handleSubmit } = useStepController({
+    form,
+    step: STEPS.user,
+    store,
+  });
 
   return (
     <form.AppForm>
-      <form onSubmit={handleNext} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <h2 className="text-xl font-semibold">Personal Information</h2>
 
         <div className="flex items-center justify-between flex-wrap sm:flex-nowrap w-full gap-2">
