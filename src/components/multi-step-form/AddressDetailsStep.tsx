@@ -11,8 +11,6 @@ export const AddressDetailsStep = forwardRef<FormStepRef>(
   function AddressDetailsStep(_props, ref) {
     const defaultValues = store((state) => state.data.address);
     const STEPS = store((state) => state.STEPS);
-    const next = store((state) => state.next);
-
     const form = useAppForm({
       defaultValues,
       validators: {
@@ -21,7 +19,7 @@ export const AddressDetailsStep = forwardRef<FormStepRef>(
       onSubmit: async ({ value }) => next(STEPS.address, value),
     });
 
-    const { isSubmitting, handleSubmit, previous } = useStepController({
+    const { isSubmitting, handleSubmit, previous, next } = useStepController({
       form,
       step: STEPS.address,
       store,

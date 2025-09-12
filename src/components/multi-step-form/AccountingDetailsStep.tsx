@@ -12,8 +12,6 @@ export const AccountingDetailsStep = forwardRef<FormStepRef>(
     const defaultValues = store((state) => state.data.accounting);
     const STEPS = store((state) => state.STEPS);
 
-    const next = store((state) => state.next);
-
     const form = useAppForm({
       defaultValues,
       validators: {
@@ -22,7 +20,7 @@ export const AccountingDetailsStep = forwardRef<FormStepRef>(
       onSubmit: ({ value }) => next(STEPS.accounting, value),
     });
 
-    const { isSubmitting, handleSubmit, previous } = useStepController({
+    const { isSubmitting, handleSubmit, previous, next } = useStepController({
       form,
       step: STEPS.accounting,
       store,

@@ -10,6 +10,7 @@ import type { FormStepRef } from './types';
 
 type StoreStep = ReturnType<typeof store.getState>['currentStep']['value'];
 
+//TODO: could create a custom hook for multi step logic
 export function DraftForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const userStepRef = useRef<FormStepRef>(null);
@@ -38,7 +39,7 @@ export function DraftForm() {
   const reset = store((state) => state.reset);
   const data = store((state) => state.data);
 
-  const STEPS = store((s) => s.STEPS);
+  const STEPS = store((state) => state.STEPS);
 
   const handleAccordionChange = (newStep: StoreStep) => {
     let currentFormRef: FormStepRef | null = null;

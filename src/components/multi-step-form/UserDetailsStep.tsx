@@ -6,13 +6,16 @@ import { userSchema } from './schema';
 import type { FormStepRef } from './types';
 import { useStepController } from './useStepController';
 
+/*
+- can possibly create a generic wrapper component for each step to reduce boilerplate (take in step name)
+- could move STEPS to parent only and pass in as prop
+*/
 export const UserDetailsStep = forwardRef<FormStepRef>(function UserDetailsStep(
   _props,
   ref
 ) {
-  const defaultValues = store((state) => state.data.user);
-  const next = store((state) => state.next);
   const STEPS = store((state) => state.STEPS);
+  const defaultValues = store((state) => state.data[STEPS.user]);
 
   const form = useAppForm({
     defaultValues,
@@ -22,7 +25,7 @@ export const UserDetailsStep = forwardRef<FormStepRef>(function UserDetailsStep(
     onSubmit: ({ value }) => next(STEPS.user, value),
   });
 
-  const { isSubmitting, handleSubmit } = useStepController({
+  const { isSubmitting, handleSubmit, next } = useStepController({
     form,
     step: STEPS.user,
     store,
