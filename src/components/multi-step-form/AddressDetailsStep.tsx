@@ -2,23 +2,21 @@ import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/components/ui/form';
 import { forwardRef, useImperativeHandle } from 'react';
 import { store } from './form-store';
-import { addressSchema, type AddressFormData } from './schema';
-import type { FormStepRef } from './types';
+import { addressSchema } from './schema';
 import { useStepController } from './useStepController';
 
-type AddressDetailsStepProps = {
-  onPrevious: ({ address }: { address: AddressFormData }) => void;
-  onNext: ({ address }: { address: AddressFormData }) => void;
-};
-
-export const AddressDetailsStep = forwardRef<
-  FormStepRef,
-  AddressDetailsStepProps
->(function AddressDetailsStep({ onPrevious, onNext }, ref) {
+// once updating to react 19 forwardRef is no longer needed (ref can be passed as prop directly)
+export const AddressDetailsStep = forwardRef(function AddressDetailsStep(
+  _props,
+  ref
+) {
   const defaultValues = store((state) => state.data.address);
   const setStepValidation = store((state) => state.setStepValidation);
   const updateData = store((state) => state.updateData);
   const STEPS = store((s) => s.STEPS);
+
+  const next = store((state) => state.next);
+  const previous = store((state) => state.previous);
 
   const form = useAppForm({
     defaultValues,
@@ -27,7 +25,7 @@ export const AddressDetailsStep = forwardRef<
     },
     onSubmit: async ({ value }) => {
       setStepValidation(STEPS.address, true, true);
-      onNext({ address: value });
+      next({ address: value });
     },
   });
 
@@ -89,7 +87,7 @@ export const AddressDetailsStep = forwardRef<
           <Button
             size="sm"
             variant="ghost"
-            onClick={() => onPrevious({ address: form.state.values })}
+            onClick={() => previous({ address: form.state.values })}
             type="button"
           >
             Previous

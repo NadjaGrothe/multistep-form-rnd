@@ -34,12 +34,12 @@ export function DraftForm() {
   const accordionValue = store((state) => state.currentStep.value);
   const goToStepWithSync = store((state) => state.goToStepWithSync);
   const canAccessStep = store((state) => state.canAccessStep);
-  const next = store((state) => state.next);
-  const previous = store((state) => state.previous);
+
   const reset = store((state) => state.reset);
   const data = store((state) => state.data);
 
   const STEPS = store((s) => s.STEPS);
+
   const handleAccordionChange = (newStep: StoreStep) => {
     let currentFormRef: FormStepRef | null = null;
 
@@ -71,7 +71,7 @@ export function DraftForm() {
           title="Personal Information"
           canAccess={canAccessStep(STEPS.user)}
         >
-          <UserDetailsStep ref={userStepRef} onNext={next} />
+          <UserDetailsStep ref={userStepRef} />
         </AccordionItemWrapper>
 
         <AccordionItemWrapper
@@ -79,11 +79,7 @@ export function DraftForm() {
           title="Address Information"
           canAccess={canAccessStep(STEPS.address)}
         >
-          <AddressDetailsStep
-            ref={addressStepRef}
-            onNext={next}
-            onPrevious={previous}
-          />
+          <AddressDetailsStep ref={addressStepRef} />
         </AccordionItemWrapper>
 
         <AccordionItemWrapper
@@ -91,11 +87,7 @@ export function DraftForm() {
           title="Accounting Information"
           canAccess={canAccessStep(STEPS.accounting)}
         >
-          <AccountingDetailsStep
-            ref={accountingStepRef}
-            onPrevious={previous}
-            onNext={next}
-          />
+          <AccountingDetailsStep ref={accountingStepRef} />
         </AccordionItemWrapper>
 
         <AccordionItemWrapper

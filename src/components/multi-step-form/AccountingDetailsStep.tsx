@@ -2,24 +2,21 @@ import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/components/ui/form';
 import { forwardRef, useImperativeHandle } from 'react';
 import { store } from './form-store';
-import { accountingSchema, type AccountingFormData } from './schema';
-import type { FormStepRef } from './types';
+import { accountingSchema } from './schema';
 
 import { useStepController } from './useStepController';
 
-type AccountingDetailsStepProps = {
-  onPrevious: ({ accounting }: { accounting: AccountingFormData }) => void;
-  onNext: ({ accounting }: { accounting: AccountingFormData }) => void;
-};
-
-export const AccountingDetailsStep = forwardRef<
-  FormStepRef,
-  AccountingDetailsStepProps
->(function AccountingDetailsStep({ onPrevious, onNext }, ref) {
+export const AccountingDetailsStep = forwardRef(function AccountingDetailsStep(
+  _props,
+  ref
+) {
   const defaultValues = store((state) => state.data.accounting);
   const setStepValidation = store((state) => state.setStepValidation);
   const updateData = store((state) => state.updateData);
   const STEPS = store((s) => s.STEPS);
+
+  const next = store((state) => state.next);
+  const previous = store((state) => state.previous);
 
   const form = useAppForm({
     defaultValues,
@@ -28,7 +25,7 @@ export const AccountingDetailsStep = forwardRef<
     },
     onSubmit: ({ value }) => {
       setStepValidation(STEPS.accounting, true, true);
-      onNext({ accounting: value });
+      next({ accounting: value });
     },
   });
 
@@ -79,7 +76,7 @@ export const AccountingDetailsStep = forwardRef<
           <Button
             size="sm"
             variant="ghost"
-            onClick={() => onPrevious({ accounting: form.state.values })}
+            onClick={() => previous({ accounting: form.state.values })}
             type="button"
           >
             Previous

@@ -2,22 +2,19 @@ import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/components/ui/form';
 import { forwardRef, useImperativeHandle } from 'react';
 import { store } from './form-store';
-import { userSchema, type UserFormData } from './schema';
-import type { FormStepRef } from './types';
+import { userSchema } from './schema';
 import { useStepController } from './useStepController';
 
-type PersonalDetailsStepProps = {
-  onNext: ({ user }: { user: UserFormData }) => void;
-};
-
-export const UserDetailsStep = forwardRef<
-  FormStepRef,
-  PersonalDetailsStepProps
->(function UserDetailsStep({ onNext }, ref) {
+export const UserDetailsStep = forwardRef(function UserDetailsStep(
+  _props,
+  ref
+) {
   const defaultValues = store((state) => state.data.user);
   const setStepValidation = store((state) => state.setStepValidation);
   const updateData = store((state) => state.updateData);
   const STEPS = store((s) => s.STEPS);
+
+  const next = store((state) => state.next);
 
   const form = useAppForm({
     defaultValues,
@@ -26,7 +23,7 @@ export const UserDetailsStep = forwardRef<
     },
     onSubmit: ({ value }) => {
       setStepValidation(STEPS.user, true, true);
-      onNext({ user: value });
+      next({ user: value });
     },
   });
 
